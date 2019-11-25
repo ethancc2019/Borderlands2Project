@@ -1,0 +1,23 @@
+
+create table manufacturer(
+manu_id int auto_increment,
+manu_name varchar(100),
+primary key(manu_id)
+)engine=innodb;
+
+create table gun(
+gun_id int auto_increment,
+manu_id int ,
+gun_name varchar(255),
+type varchar(255),
+damage_type varchar(255),
+dropped_by varchar(255),
+minimum_task varchar(255),
+rarity varchar(100),
+manufacturer varchar(200),
+perk varchar(255),
+location varchar(100),
+dlc varchar(255),
+Primary key(gun_id),
+foreign key(manu_id) references manufacturer(manu_id)
+)engine=innodb;
