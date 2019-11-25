@@ -25,7 +25,57 @@ def getManufacturerId(manu_name_param):
         'Shredifier': 9
     }
     return switcher.get(manu_name_param, 'No Manufacturer')
+def getLocationID(location_name_param):
+    switcher = {
+        "Arid Nexus - Badlands": 1	,
+        "Arid Nexus - Boneyard": 2	,
+        "Bloodshot Ramparts": 3	,
+        "Bloodshot Stronghold": 4	,
+        "The Bunker": 5	,
+        "Caustic Caverns": 6	,
+        "Control Core Angel": 7	,
+        "The Dust": 8	,
+        "End of the Line": 9	,
+        "Eridium Blight": 10	,
+        "Fink's Slaughterhouse": 11	,
+        "Friendship Gulag": 12	,
+        "Frostburn Canyon": 13	,
+        "Helios (moonbase)": 14	,
+        "Hero's Pass": 15	,
+        "Lynchwood": 16	,
+        "Natural Selection Annex": 17	,
+        "Opportunity": 18	,
+        "Ore Chasm": 19	,
+        "The Raid on Digistruct Peak": 20	,
+        "Sanctuary": 21	,
+        "Sanctuary Hole": 22	,
+        "Sawtooth Cauldron": 23	,
+        "Southern Shelf": 24	,
+        "Southern Shelf - Bay": 25	,
+        "Southpaw Steam & Power": 26	,
+        "Terramorphous Peak": 27	,
+        "The Fridge": 28	,
+        "The Highlands": 29	,
+        "The Holy Spirits": 30	,
+        "Thousand Cuts": 31	,
+        "Three Horns - Divide": 32	,
+        "Three Horns - Valley": 33	,
+        "Tundra Express": 34	,
+        "Vault of the Warrior": 35	,
+        "Wildlife Exploitation Preserve": 36	,
+        "Windshear Waste": 37,
+        "Any Location": 39,
+        "Hayters Folly": 40,
+        'Badasscrater of Badassitude': 41,
+        'Pangolin': 42,
+        'Wurmwater': 43,
+        'The Winged Storm': 44,
+        'Flamerock Refuge': 45,
+        'Hunters Grotto': 46,
+        'Pyro Petes Bar': 47
 
+    }
+    return switcher.get(location_name_param, '-1')
 
 if __name__ == "__main__":
     cursor = connectToDB()
@@ -33,6 +83,8 @@ if __name__ == "__main__":
     wb = xlrd.open_workbook('/Users/EthanCC/Desktop/Borderlands2Project/CSVs/Master Weapon List.xlsx')
     sheet = wb.sheet_by_index(0)
     counter = 0
+    #TODO: Update weapon table to have location table and grab location ID with python switch case
+
     for i in range(sheet.nrows):
         manu_id_p = getManufacturerId(sheet.cell_value(i,4))
 
