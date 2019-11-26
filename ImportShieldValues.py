@@ -76,7 +76,9 @@ def getLocationID(location_name_param):
         'The Winged Storm': 44,
         'Flamerock Refuge': 45,
         'Hunters Grotto': 46,
-        'Pyro Petes Bar': 47
+        'Pyro Petes Bar': 47,
+        'DLC Regions': 48,
+        'Magnys Lighthouse': 49
 
     }
     return switcher.get(location_name_param, '-1')

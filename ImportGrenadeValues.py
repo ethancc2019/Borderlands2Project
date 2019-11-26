@@ -22,9 +22,13 @@ def getManufacturerId(manu_name_param):
         'Tediore': 6,
         'Torgue': 7,
         'Vladof': 8,
-        'Shredifier': 9
+        'Shredifier': 9,
+        'Anshin': 10,
+        'Pangolin': 11
+
     }
     return switcher.get(manu_name_param, 'No Manufacturer')
+
 def getLocationID(location_name_param):
     switcher = {
         "Arid Nexus - Badlands": 1	,
@@ -82,38 +86,28 @@ def getLocationID(location_name_param):
 if __name__ == "__main__":
     cursor = connectToDB()
 
-    wb = xlrd.open_workbook('C:\\Users\\Ethan\\Desktop\\Borderlands2Project\\CSVs\\Master Weapon List.xlsx')
+    wb = xlrd.open_workbook('C:\\Users\\Ethan\\Desktop\\Borderlands2Project\\CSVs\\Master Grenade List.xlsx')
     sheet = wb.sheet_by_index(0)
     counter = 0
-    #TODO: Update weapon table to have location table and grab location ID with python switch case
-
     for i in range(sheet.nrows):
-        manu_id_p = getManufacturerId(sheet.cell_value(i,4))
-        location_id_p = getLocationID(sheet.cell_value(i, 8).replace('\'', ''))
 
-        # split[0] = sheet.cell_values(i,0)
-        # split[1] = sheet.cell_values(i,1)
-        # split[2] = sheet.cell_values(i,2)
-        # spit[3] = sheet.cell_values(i,3)
-        # split[4] = sheet.cell_values(i,4)
-        # split[5] = sheet.cell_values(i,5) , damage type
-        # split[6] = dropped by sheet.cell_values(i,6)
-        # split[7] = min Task, sheet.cell_value(i,7)
-        # split[8] = location, sheet.cell_value(i,8)
-        # split[9] = rarity, sheet.cell_value(i,9)
+        if i != 0:
+            manu_id_p = getManufacturerId(sheet.cell_value(i,4))
+            location_id_p = getLocationID(sheet.cell_value(i,8).replace('\'',''))
+        #dlc = sheet.cell_value(i,0)
+        # item type = sheet.cell_value(i,1)
+        # shield name = sheet.cell_value(i,2)
+        #shield perk = sheet.cell_value(i,3)
+        #manufacturer sheet.cell_value(i,4)
+        # damage type = sheet.cell_value(i,5)
+        # dropped by = sheet.cell_value(i,6)
+        # min task = sheet.cell_value(1,7)
+        #location = sheet.cell_value(1,8)
+        #rarity = sheet.cell_value(1,9)
 
-        query = "insert into gun(manu_id, gun_name, type, damage_type, dropped_by, minimum_task, rarity, " \
-                "manufacturer, perk, location, dlc) value(%s, %s,%s, %s,%s, %s,%s, %s,%s, %s,%s)"
-        cursor.execute(query, (manu_id_p,
-                               sheet.cell_value(i,2),
-                               sheet.cell_value(i,1),
-                               sheet.cell_value(i,5),
-                               sheet.cell_value(i,6),
-                               sheet.cell_value(i,7),
-                               sheet.cell_value(i,9),
-                               sheet.cell_value(i,4),
-                               sheet.cell_value(i,3),
-                               sheet.cell_value(i,8),
-                               sheet.cell_value(i,0)))
-        cursor.connection.commit()
-        print('Finished: ' + sheet.cell_value(i,4))
+            query = "insert into grenade(manu_id, location_id,item_type, grenade_name, grenade_perk, manufacturer, location_name,damage_type, dropped_by, minimum_task,rarity, dlc) " \
+                    "value(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            cursor.execute(query, (manu_id_p, location_id_p, sheet.cell_value(i,1), sheet.cell_value(i,2),sheet.cell_value(i,3),
+            sheet.cell_value(i,4), sheet.cell_value(i,8).replace('\'',''),sheet.cell_value(i,5), sheet.cell_value(i,6), sheet.cell_value(i,7), sheet.cell_value(i,9), sheet.cell_value(i,0)))
+            cursor.connection.commit()
+            print('Finished: ' + sheet.cell_value(i,2))
