@@ -1,3 +1,4 @@
+DDL for creating all of our tables
 
 create table manufacturer(
 manu_id int auto_increment,
@@ -25,6 +26,24 @@ foreign key(manu_id) references manufacturer(manu_id)
 create table grenade(grenade_id int auto_increment, manu_id int, location_id int,item_type varchar(30), grenade_name varchar(150),
 grenade_perk varchar(255), manufacturer varchar(150), location_name varchar(200),damage_type varchar(200), dropped_by varchar(200), minimum_task varchar(200),rarity varchar(50), dlc varchar(100),
 primary key(grenade_id),
+foreign key(manu_id) references manufacturer(manu_id)
+)engine=INNODB;
+
+create table shield(shield_id int auto_increment, manu_id int,location_id int,item_type varchar(100),
+shield_name varchar(150), shield_perk varchar(255),
+manufacturer varchar(255), location_name varchar(255),damage_type varchar(255),
+dropped_by varchar(150), minimum_task varchar(255), rarity varchar(150), dlc varchar(150),Primary key(shield_id), foreign key(manu_id) references manufacturer(manu_id), foreign key(location_id) references location(location_id))
+
+CREATE TABLE `location` (
+  `location_id` int(11) NOT NULL AUTO_INCREMENT,
+  `location_name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`location_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=50 DEFAULT CHARSET=latin1
+
+
+create table class_mod(mod_id int auto_increment, manu_id int, location_id int,item_type varchar(30), mod_name varchar(150),
+mod_perk varchar(255), manufacturer varchar(150), location_name varchar(200),damage_type varchar(200), dropped_by varchar(200), minimum_task varchar(200),rarity varchar(50), dlc varchar(100),
+primary key(mod_id),
 foreign key(manu_id) references manufacturer(manu_id)
 )engine=INNODB;
 
