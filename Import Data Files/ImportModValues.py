@@ -6,7 +6,7 @@ def connectToDB():
     db = pymysql.connect(
         host="ethan.cikeys.com",
         user="ethancik_root",
-        passwd="Rebels19!",
+        passwd="Rebels1997!",
         database="ethancik_borderlands")
     cursor = db.cursor()
     return cursor
@@ -110,15 +110,15 @@ if __name__ == "__main__":
                 "dlc) value(%s, %s,%s, %s,%s, %s,%s, %s,%s, %s,%s, %s)"
             cursor.execute(query, (manu_id_p,
                                location_id_p,
-                               sheet.cell_value(i,2),
                                sheet.cell_value(i,1),
+                               sheet.cell_value(i,2),
+                               sheet.cell_value(i,3),
+                               sheet.cell_value(i,4),
+                               sheet.cell_value(i,8),
                                sheet.cell_value(i,5),
                                sheet.cell_value(i,6),
                                sheet.cell_value(i,7),
                                sheet.cell_value(i,9),
-                               sheet.cell_value(i,4),
-                               sheet.cell_value(i,3),
-                               sheet.cell_value(i,8),
                                sheet.cell_value(i,0)))
             cursor.connection.commit()
             print('Finished: ' + sheet.cell_value(i,4))

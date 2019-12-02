@@ -51,3 +51,95 @@ foreign key(manu_id) references manufacturer(manu_id)
 create table vechicle(vechicle_id int auto_increment, vechicle_name varchar(100), vechicle_tye varchar(50),vechicle_crew varchar(255),
 vechicle_armaments varchar(255), location_id int, location_name varchar(255),
 Primary key(vechicle_id), foreign key(location_id) references location(location_id))
+
+
+CREATE TABLE user(
+	user_id int primary key auto_increment,
+    username varchar(20)
+)engine=InnoDB;
+
+Create table badass_rank(
+	user_id int,
+    level int,
+    max_health float(3,1),
+    shield_cap float(3,1),
+    sh_recharge_delay float(3,1),
+    sh_recharge_rate float(3,1),
+    melee_damage float(3,1),
+    grenade_damage float(3,1),
+    gun_accuracy float(3,1),
+    gun_damage float(3,1),
+    fire_rate float(3,1),
+    recoil_reduction float(3,1),
+    reload_speed float(3,1),
+    el_effect_chance float(3,1),
+    el_effect_damage float(3,1),
+    crit_hit_damage float(3,1),
+    foreign key(user_id) references user(user_id),
+    primary key(user_id)
+)engine=innodb;
+
+create table vault_hunter(
+	hunter_id int ,
+    user_id int,
+    class varchar(10),
+    level int,
+    name varchar(20),
+    foreign key(user_id) references user(user_id),
+    primary key(user_id, character_id)
+)engine=innodb;
+
+create table currency(
+	hunter_id int primary key,
+    money int,
+    eridium int,
+    pistol_ammo int,
+    sniper_ammo int,
+    shotgun_ammo int,
+    rifle_ammo int,
+    submachine_ammo int,
+    rocket_ammo int,
+    grendade int
+)engine=innodb;
+
+create table equipped(
+	user_id int,
+    gun_1 int,
+    gun_2 int,
+    gun_3 int,
+    gun_4 int,
+    grenade_mod int,
+    class_mod int,
+    artifact int,
+    foreign key(user_id) references user(user_id),
+    foreign key(gun_1) references gun(gun_id),
+    foreign key(gun_2) references gun(gun_id),
+    foreign key(gun_3) references gun(gun_id),
+    foreign key(gun_4) references gun(gun_id),
+    foreign key(grenade_mod) references grenade(grenade_id),
+    foreign key(class_mod) references class_mod(mod_id),
+    foreign key(artifact) references artifact(artifact_id)
+)engine=innodb;
+
+create table inventory(
+	hunter_id int,
+    inv_num int ,
+    item_id int,
+    foreign key(hunter_id) references vault_hunter(hunter_id),
+    primary key(hunter_id, inv_num)
+)engine=innodb;
+
+create table enemy(
+	enemy_id int auto_increment,
+    location_id int,
+    name varchar(255),
+    foreign key(location_id) references location(location_id),
+    primary key(enemy_id)
+)engine=InnoDB;
+
+create table npc(
+	npc_ID int primary key auto_increment,
+    location_id int,
+    name varchar(50),
+    foreign key(location_id) references location(location_id)
+)engine=innodb;
