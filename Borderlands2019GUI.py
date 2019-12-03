@@ -6,14 +6,21 @@ from tkinter import ttk
 global r
 global e1
 global e2
+global user
+global characters
 #connection to DB
 global connection
 global cursor
 #display and selected element
 global listbox
 #gun
-global var1
 global list1
+global gunAR
+global gunPistol
+global gunRocket
+global gunShotgun
+global gunSMG
+global gunSniper
 #shields
 global var2
 global list2
@@ -29,12 +36,33 @@ global list5
 #search and character select
 global previousSearch
 global previousCharacter
-
+global previousPreviousSearch
+global previousPreviousCharacter
+#currency
+global money
+global keys
+global eridium
+#ammo
+global ammo1
+global ammo2
+global ammo3
+global ammo4
+global ammo5
+global ammo6
+global ammo7
 
 def query():
     global listbox
     global previousSearch
     global previousCharacter
+    global previousPreviousSearch
+    global previousPreviousCharacter
+    global gunAR
+    global gunPistol
+    global gunRocket
+    global gunShotgun
+    global gunSMG
+    global gunSniper
     global var1
     global list1
     global var2
@@ -46,94 +74,271 @@ def query():
     global var5
     global list5
     global cursor
+    global e1
+    global user
     print("search:", previousSearch)
     print("character:", previousCharacter)
     print(listbox.index(tkinter.ACTIVE))
-    print("%d, %d, %d, %d, %d" % (var1.get(), var2.get(), var3.get(), var4.get(), var5.get()))
-    if previousSearch != '. . .':
-        print("Made it 1") #check if a command selected
-        if previousSearch == 'Show All Items':
+    print("%d, %d, %d, %d" % ( var2.get(), var3.get(), var4.get(), var5.get()))
+    if previousSearch != '. . .': # does not operate if no command
+        #first check all general things
+        #show all items
+        if previousSearch == 'Show All Items(Ignore Checkboxes)' and previousPreviousSearch != previousSearch:
+            previousPreviousSearch = 'Show All Items(Ignore Checkboxes)'
             listbox.delete(0, tkinter.END)
             listbox.insert(tkinter.END, "Name   :-:   Item Type   :-:   Damage Type   " +
                            ":-:   Rarity   :-:   Manufacturer")
-            cursor.execute("SELECT gun_name, type, damage_type, rarity, manu_name FROM gun join" +
+            cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
                            " manufacturer on gun.manu_id = manufacturer.manu_id")
             list1 = cursor.fetchall()
-            for (name, item, damage, rarity, manu) in list1:
+            for (ident, name, item, damage, rarity, manu) in list1:
                 listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                                "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
-            cursor.execute("SELECT shield_name, item_type, damage_type, rarity, manu_name " +
+            cursor.execute("SELECT shield_id, shield_name, item_type, damage_type, rarity, manu_name " +
                            "FROM shield join manufacturer on shield.manu_id = manufacturer.manu_id")
             list2 = cursor.fetchall()
-            for (name, item, damage, rarity, manu) in list2:
+            for (ident, name, item, damage, rarity, manu) in list2:
                 listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                                "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
-            cursor.execute("SELECT grenade_name, item_type, damage_type, rarity, manu_name " +
+            cursor.execute("SELECT grenade_id, grenade_name, item_type, damage_type, rarity, manu_name " +
                            "FROM grenade join manufacturer on grenade.manu_id = manufacturer.manu_id")
             list3 = cursor.fetchall()
-            for (name, item, damage, rarity, manu) in list3:
+            for (ident, name, item, damage, rarity, manu) in list3:
                 listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                                "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
-            cursor.execute("SELECT mod_name, item_type, damage_type, rarity, manu_name " +
+            cursor.execute("SELECT mod_id, mod_name, item_type, damage_type, rarity, manu_name " +
                            "FROM class_mod join manufacturer on class_mod.manu_id = manufacturer.manu_id")
             list4 = cursor.fetchall()
-            for (name, item, damage, rarity, manu) in list4:
+            for (ident, name, item, damage, rarity, manu) in list4:
                 listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                                "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
-            cursor.execute("SELECT relic_name, item_type, damage_type, rarity, manu_name " +
+            cursor.execute("SELECT relic_id, relic_name, item_type, damage_type, rarity, manu_name " +
                            "FROM relic join manufacturer on relic.manu_id = manufacturer.manu_id")
             list5 = cursor.fetchall()
-            for (name, item, damage, rarity, manu) in list5:
+            for (ident, name, item, damage, rarity, manu) in list5:
                 listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                                "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
-        if previousCharacter != '. . .':
-            print("Made it 2") # check if character selected
-            if var1.get() == 1 or var2.get() == 1 or var3.get() == 1 or var4.get() == 1 or var5.get() == 1:
-                print("Made it 3") # do we need to query?
-                listbox.delete(0, tkinter.END)
-                if previousSearch == 'Show Character Inventory':
-                    print("Made it 4") #command ^ has been selected
-                    listbox.insert(tkinter.END, "Name   :-:   Item Type   :-:   Damage Type   "+
+        if previousSearch == 'Show All Items':
+            previousPreviousSearch = 'Show All Items'
+            if (var2.get() == 1 or var3.get() == 1 or var4.get() == 1 or var5.get() == 1 or gunAR.get() == 1 or
+            gunSMG.get() == 1 or gunShotgun.get() == 1 or gunSniper.get() == 1 or gunPistol.get() == 1 or
+            gunRocket.get() == 1):
+                    listbox.delete(0, tkinter.END)
+                    listbox.insert(tkinter.END, "Name   :-:   Item Type   :-:   Damage Type   " +
                                    ":-:   Rarity   :-:   Manufacturer")
-                    # Each Checkbox is checked
-                    if var1.get() == 1:
-                        # manipulate query for inventory join and character join
-                        cursor.execute("SELECT gun_name, type, damage_type, rarity, manu_name FROM gun join"+
-                        " manufacturer on gun.manu_id = manufacturer.manu_id")
-                        list1 = cursor.fetchall()
-                        for (name, item, damage, rarity, manu) in list1:
+                    list1 = None
+                    if gunAR.get() == 1:
+                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
+                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type = "+
+                                       "'Assault Rifle'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if gunSMG.get() == 1:
+                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
+                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type =" +
+                                       "'Submachine Gun'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if gunPistol.get() == 1:
+                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
+                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type =" +
+                                       " 'Pistol'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if gunShotgun.get() == 1:
+                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
+                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type = " +
+                                       "'Shotgun'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if gunSniper.get() == 1:
+                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
+                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type =" +
+                                       " 'Sniper Rifle'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if gunRocket.get() == 1:
+                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
+                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type =" +
+                                       "'Rocket Launcher'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if list1 is not None:
+                        for (ident, name, item, damage, rarity, manu) in list1:
                             listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                             "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
+                    # Each Checkbox is checked
                     if var2.get() == 1:
-                        # manipulate query for inventory join and character join
-                        cursor.execute("SELECT shield_name, item_type, damage_type, rarity, manu_name " +
+                        cursor.execute("SELECT shield_id, shield_name, item_type, damage_type, rarity, manu_name " +
                         "FROM shield join manufacturer on shield.manu_id = manufacturer.manu_id")
                         list2 = cursor.fetchall()
-                        for (name, item, damage, rarity, manu) in list2:
+                        for (ident, name, item, damage, rarity, manu) in list2:
+                            listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
+                            "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
+                    if var3.get() == 1:
+                        cursor.execute("SELECT grenade_id, grenade_name, item_type, damage_type, rarity, manu_name " +
+                        "FROM grenade join manufacturer on grenade.manu_id = manufacturer.manu_id")
+                        list3 = cursor.fetchall()
+                        for (ident, name, item, damage, rarity, manu) in list3:
+                            listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
+                            "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
+                    if var4.get() == 1:
+                        cursor.execute("SELECT mod_id, mod_name, item_type, damage_type, rarity, manu_name " +
+                                       "FROM class_mod join manufacturer on class_mod.manu_id = manufacturer.manu_id")
+                        list4 = cursor.fetchall()
+                        for (ident, name, item, damage, rarity, manu) in list4:
+                            listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
+                            "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
+                    if var5.get() == 1:
+                        cursor.execute("SELECT relic_id, relic_name, item_type, damage_type, rarity, manu_name " +
+                                       "FROM relic join manufacturer on relic.manu_id = manufacturer.manu_id")
+                        list5 = cursor.fetchall()
+                        for (ident, name, item, damage, rarity, manu) in list5:
+                            listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
+                            "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
+        if previousSearch == 'Show All Item Locations' and previousPreviousSearch != previousSearch:
+            #USE SP
+            previousPreviousSearch = previousSearch
+        if previousCharacter != '. . .': # check if character selected
+            #all possibilities
+            if previousSearch == "Show Current Character Stats and Badass":
+                listbox.delete(0, tkinter.END)
+                cursor.execute("SELECT * from vault_hunter join user on vault_hunter.user_id = user.user_id where username = \'" +
+                    e1 + "\' and name = \'" + previousCharacter + "\'")
+                character = cursor.fetchall()
+                listbox.insert(tkinter.END, "User: " + user[0][1])
+                listbox.insert(tkinter.END, "Name: " + character[0][4])
+                listbox.insert(tkinter.END, "Class: " + character[0][2])
+                listbox.insert(tkinter.END, "Level: " + str(character[0][3]))
+                cursor.execute("SELECT * from badass_rank where user_id = \'" +
+                    str(user[0][0]) + "\'")
+                character = cursor.fetchall()
+                listbox.insert(tkinter.END, "Badass Level: " + str(character[0][1]))
+                listbox.insert(tkinter.END, "Health Increase %: " + str(character[0][2]))
+                listbox.insert(tkinter.END, "Shield Increase %: " + str(character[0][3]))
+                listbox.insert(tkinter.END, "Shield Recharge Delay: " + str(character[0][4]))
+                listbox.insert(tkinter.END, "Shield Recharge Rate: " + str(character[0][5]))
+                listbox.insert(tkinter.END, "Melee Damage: " + str(character[0][6]))
+                listbox.insert(tkinter.END, "Grenade Damage: " + str(character[0][7]))
+                listbox.insert(tkinter.END, "Gun Accuracy: " + str(character[0][8]))
+                listbox.insert(tkinter.END, "Gun Damage: " + str(character[0][9]))
+                listbox.insert(tkinter.END, "Fire Rate: " + str(character[0][10]))
+                listbox.insert(tkinter.END, "Recoil Reduction: " + str(character[0][11]))
+                listbox.insert(tkinter.END, "Reload Speed: " + str(character[0][12]))
+                listbox.insert(tkinter.END, "Elemental Effect Chance: " + str(character[0][13]))
+                listbox.insert(tkinter.END, "Elemental Effect Damage: " + str(character[0][14]))
+                listbox.insert(tkinter.END, "Critical Hit Chance: " + str(character[0][15]))
+            if (var2.get() == 1 or var3.get() == 1 or var4.get() == 1 or var5.get() == 1 or gunAR.get() == 1 or
+            gunSMG.get() == 1 or gunShotgun.get() == 1 or gunSniper.get() == 1 or gunPistol.get() == 1 or
+            gunRocket.get() == 1):
+                if previousSearch == 'Show Character Inventory':
+                    listbox.delete(0, tkinter.END)
+                    listbox.insert(tkinter.END, "Name   :-:   Item Type   :-:   Damage Type   " +
+                                   ":-:   Rarity   :-:   Manufacturer")
+                    list1 = None
+                    if gunAR.get() == 1:
+                        # TODO FOR EACH manipulate query for inventory join and character join
+                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
+                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type = "+
+                                       "'Assault Rifle'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if gunSMG.get() == 1:
+                        # TODO FOR EACH manipulate query for inventory join and character join
+                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
+                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type =" +
+                                       "'Submachine Gun'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if gunPistol.get() == 1:
+                        # TODO FOR EACH manipulate query for inventory join and character join
+                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
+                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type =" +
+                                       " 'Pistol'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if gunShotgun.get() == 1:
+                        # TODO FOR EACH manipulate query for inventory join and character join
+                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
+                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type = " +
+                                       "'Shotgun'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if gunSniper.get() == 1:
+                        # TODO FOR EACH manipulate query for inventory join and character join
+                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
+                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type =" +
+                                       " 'Sniper'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if gunRocket.get() == 1:
+                        # TODO FOR EACH manipulate query for inventory join and character join
+                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
+                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type =" +
+                                       "'Rocket Launcher'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if list1 is not None:
+                        for (ident, name, item, damage, rarity, manu) in list1:
+                            listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
+                            "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
+                    # do we need to query if nothing is selected?
+                    #command ^ has been selected
+                    # Each Checkbox is checked
+                    if var2.get() == 1:
+                        # manipulate query for inventory join and character join
+                        cursor.execute("SELECT shield_id, shield_name, item_type, damage_type, rarity, manu_name " +
+                        "FROM shield join manufacturer on shield.manu_id = manufacturer.manu_id")
+                        list2 = cursor.fetchall()
+                        for (ident, name, item, damage, rarity, manu) in list2:
                             listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                             "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
                     if var3.get() == 1:
                         # manipulate query for inventory join and character join
-                        cursor.execute("SELECT grenade_name, item_type, damage_type, rarity, manu_name " +
+                        cursor.execute("SELECT grenade_id, grenade_name, item_type, damage_type, rarity, manu_name " +
                         "FROM grenade join manufacturer on grenade.manu_id = manufacturer.manu_id")
                         list3 = cursor.fetchall()
-                        for (name, item, damage, rarity, manu) in list3:
+                        for (ident, name, item, damage, rarity, manu) in list3:
                             listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                             "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
                     if var4.get() == 1:
                         # manipulate query for inventory join and character join
-                        cursor.execute("SELECT mod_name, item_type, damage_type, rarity, manu_name " +
+                        cursor.execute("SELECT mod_id, mod_name, item_type, damage_type, rarity, manu_name " +
                                        "FROM class_mod join manufacturer on class_mod.manu_id = manufacturer.manu_id")
                         list4 = cursor.fetchall()
-                        for (name, item, damage, rarity, manu) in list4:
+                        for (ident, name, item, damage, rarity, manu) in list4:
                             listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                             "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
                     if var5.get() == 1:
                         # manipulate query for inventory join and character join
-                        cursor.execute("SELECT relic_name, item_type, damage_type, rarity, manu_name " +
+                        cursor.execute("SELECT relic_id, relic_name, item_type, damage_type, rarity, manu_name " +
                                        "FROM relic join manufacturer on relic.manu_id = manufacturer.manu_id")
                         list5 = cursor.fetchall()
-                        for (name, item, damage, rarity, manu) in list5:
+                        for (ident, name, item, damage, rarity, manu) in list5:
                             listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                             "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
 
@@ -145,62 +350,198 @@ def onSelectSearch(event=None):
 
 def onSelectCharacter(event=None):
     global previousCharacter
+    global money
+    global keys
+    global eridium
+    global ammo1
+    global ammo2
+    global ammo3
+    global ammo4
+    global ammo5
+    global ammo6
+    global ammo7
+    global e1
     if event:
         previousCharacter = event.widget.get()
+    cursor.execute("SELECT * from vault_hunter join user on vault_hunter.user_id = user.user_id where username = \'" +
+                   e1 + "\' and name = \'" + previousCharacter + "\'")
+    character = cursor.fetchall()
+    cursor.execute("SELECT * from currency where hunter_id = \'" + str(character[0][0])+ "\'")
+    character = cursor.fetchall()
+    for(id, mon, erid, pis, snip, shot, rif, sub, roc, gren, key) in character:
+        money.delete(0, tkinter.END)
+        money.insert(tkinter.END, mon)
+        eridium.delete(0, tkinter.END)
+        eridium.insert(tkinter.END, erid)
+        keys.delete(0, tkinter.END)
+        keys.insert(tkinter.END, key)
+        ammo1.config(text=str(rif))
+        ammo2.config(text=str(sub))
+        ammo3.config(text=str(shot))
+        ammo4.config(text=str(snip))
+        ammo5.config(text=str(pis))
+        ammo6.config(text=str(roc))
+        ammo7.config(text=str(gren))
     query()
 
+def update():
+    global e1
+    global cursor
+    global money
+    global eridium
+    global keys
+    global previousCharacter
+    global connection
+    if previousCharacter != '. . .':
+        cursor.execute("SELECT * from vault_hunter join user on vault_hunter.user_id = user.user_id where username = \'" +
+            e1 + "\' and name = \'" + previousCharacter + "\'")
+        character = cursor.fetchall()
+        cursor.execute("Update currency set money = "+ str(money.get()) + " where hunter_id = \'"
+                       + str(character[0][0]) + "\'")
+        cursor.execute("Update currency set eridium = " + str(eridium.get()) + " where hunter_id = \'"
+                       + str(character[0][0]) + "\'")
+        cursor.execute("Update currency set skeletonkeys = " + str(keys.get()) + " where hunter_id = \'"
+                       + str(character[0][0]) + "\'")
+        connection.commit()
+        e = tkinter.Tk()
+        e.minsize(260, 40)
+        e.title('Update Successful')
+        tkinter.Label(e, text=previousCharacter + " currency updated!").pack()
+        button = tkinter.Button(e, text='Okay', width=25, command=e.destroy)
+        button.pack()
+    else:
+        e = tkinter.Tk()
+        e.minsize(260, 40)
+        e.title('Error')
+        tkinter.Label(e, text='No character selected for currency update').pack()
+        button = tkinter.Button(e, text='Okay', width=25, command=e.destroy)
+        button.pack()
 
 def initalize():
     global r
+    global e1
+    global user
+    global characters
     global connection
     global cursor
     global listbox
     global previousSearch
     global previousCharacter
-    global var1
+    global previousPreviousSearch
+    global previousPreviousCharacter
     global var2
     global var3
     global var4
     global var5
+    global gunAR
+    global gunPistol
+    global gunRocket
+    global gunShotgun
+    global gunSMG
+    global gunSniper
+    global money
+    global keys
+    global eridium
+    global ammo1
+    global ammo2
+    global ammo3
+    global ammo4
+    global ammo5
+    global ammo6
+    global ammo7
+    e1 = e1.get()
     r.destroy()
     cursor = connection.cursor()
     previousSearch = '. . .'
     previousCharacter = '. . .'
+    previousPreviousSearch = '. . .'
+    previousPreviousCharacter = '. . .'
+    cursor.execute("SELECT * from user where username = \'" + e1 + "\'")
+    user = cursor.fetchall()
+    cursor.execute("SELECT * from vault_hunter where user_id = \'" + str(user[0][0]) + "\'")
+    characters = cursor.fetchall()
     main = tkinter.Tk()
     main.title('BorderlandsDB User Interface')
-    main.minsize(720, 580)
+    main.minsize(720, 500)
     #search commands '. . .' negates searches
     tkinter.Label(main, text='Search', relief=tkinter.RIDGE).grid(row=0, column=0)
-    combo = ttk.Combobox(main, width=100, values=("Show Character Inventory", "Show All Items", "Show All Item Locations",
-                                                  "Show All Things", "Do Something"))
+    combo = ttk.Combobox(main, width=100, values=("Show Character Inventory", "Show Current Character Stats and Badass",
+     "Show All Items(Ignore Checkboxes)", "Show All Items", "Show All Item Locations"))
     combo.set(". . .")
     combo.grid(row=1, columnspan=10, padx=30)
     combo.bind('<<ComboboxSelected>>', onSelectSearch)
     tkinter.Label(main, width=1).grid(row=2)
-    tkinter.Label(main, text='Character', relief=tkinter.RIDGE).grid(row=3, column=2, columnspan=3)
-    tkinter.Label(main, text='Type', relief=tkinter.RIDGE).grid(row=3, column=5, columnspan=3)
+    tkinter.Label(main, text='Character', relief=tkinter.RIDGE).grid(row=3, column=0, columnspan=3)
+    tkinter.Label(main, text='Guns', relief=tkinter.RIDGE).grid(row=3, column=2, columnspan=3)
+    tkinter.Label(main, text='Ammo', relief=tkinter.RIDGE).grid(row=3, column=5, columnspan=3)
+    ammo1 = tkinter.Label(main, width=5, relief=tkinter.RIDGE)
+    ammo1.grid(row=4, column=5, columnspan=3)
+    ammo2 = tkinter.Label(main, width=5, relief=tkinter.RIDGE)
+    ammo2.grid(row=5, column=5, columnspan=3)
+    ammo7 = tkinter.Label(main, width=5, relief=tkinter.RIDGE)
+    ammo7.grid(row=5, column=7, sticky="E")
+    ammo3 = tkinter.Label(main, width=5, relief=tkinter.RIDGE)
+    ammo3.grid(row=6, column=5, columnspan=3)
+    ammo4 = tkinter.Label(main, width=5, relief=tkinter.RIDGE)
+    ammo4.grid(row=7, column=5, columnspan=3)
+    ammo5 = tkinter.Label(main, width=5, relief=tkinter.RIDGE)
+    ammo5.grid(row=8, column=5, columnspan=3)
+    ammo6 = tkinter.Label(main, width=5, relief=tkinter.RIDGE)
+    ammo6.grid(row=9, column=5, columnspan=3)
+    tkinter.Label(main, text='Other Items', relief=tkinter.RIDGE).grid(row=3, column=8, columnspan=3)
     #character select TODO make search for characters and list them
-    combochar = ttk.Combobox(main, width=10, values=("Test Bandit", "Some Guy"))
-    combochar.grid(row=4, column=2, columnspan=3, padx=30)
+    names = []
+    for (hid, cid, cass, level, name) in characters:
+        names.append(name)
+    combochar = ttk.Combobox(main, width=30, values=names)
+    combochar.grid(row=4, column=0, columnspan=3, padx=30)
     combochar.set(". . .")
     combochar.bind('<<ComboboxSelected>>', onSelectCharacter)
+    #currency stuff
+    tkinter.Label(main, text='Money', relief=tkinter.RIDGE).grid(row=5, column=0, sticky="E")
+    money = tkinter.Entry(main)
+    money.grid(row=5, column=1, sticky="W")
+    tkinter.Label(main, text='Eridium', relief=tkinter.RIDGE).grid(row=6, column=0, sticky="E")
+    eridium = tkinter.Entry(main)
+    eridium.grid(row=6, column=1, sticky="W")
+    tkinter.Label(main, text='Keys', relief=tkinter.RIDGE).grid(row=7, column=0, sticky="E")
+    keys = tkinter.Entry(main)
+    keys.grid(row=7, column=1, sticky="W")
+    updateb = tkinter.Button(main, text='Update Currency', command=update)
+    updateb.grid(row=8, column=0, columnspan=2)
     #list of checkboxes for scope of search
-    var1 = tkinter.IntVar()
-    tkinter.Checkbutton(main, text="Guns", variable=var1, anchor="w", command=query).\
-        grid(row=4, column=6, columnspan=3, sticky="W")
+    gunAR = tkinter.IntVar()
+    tkinter.Checkbutton(main, text="Assault Rifle", variable=gunAR, anchor="w", command=query).\
+        grid(row=4, column=3, columnspan=3, sticky="W")
+    gunSMG = tkinter.IntVar()
+    tkinter.Checkbutton(main, text="Submachine Gun", variable=gunSMG, anchor="w", command=query). \
+        grid(row=5, column=3, columnspan=4, sticky="W")
+    gunShotgun = tkinter.IntVar()
+    tkinter.Checkbutton(main, text="Shotgun", variable=gunShotgun, anchor="w", command=query). \
+        grid(row=6, column=3, columnspan=3, sticky="W")
+    gunSniper = tkinter.IntVar()
+    tkinter.Checkbutton(main, text="Sniper Rifle", variable=gunSniper, anchor="w", command=query). \
+        grid(row=7, column=3, columnspan=3, sticky="W")
+    gunPistol = tkinter.IntVar()
+    tkinter.Checkbutton(main, text="Pistol", variable=gunPistol, anchor="w", command=query). \
+        grid(row=8, column=3, columnspan=3, sticky="W")
+    gunRocket = tkinter.IntVar()
+    tkinter.Checkbutton(main, text="Rocket Launcher", variable=gunRocket, anchor="w", command=query). \
+        grid(row=9, column=3, columnspan=3, sticky="W")
+    #other items
     var2 = tkinter.IntVar()
     tkinter.Checkbutton(main, text="Shields", variable=var2, anchor="w", command=query).\
-        grid(row=5, column=6, columnspan=3, sticky="W")
+        grid(row=4, column=8, columnspan=3, sticky="W")
     var3 = tkinter.IntVar()
     tkinter.Checkbutton(main, text="Grenades", variable=var3, anchor="w", command=query).\
-        grid(row=6, column=6, columnspan=3, sticky="W")
+        grid(row=5, column=8, columnspan=3, sticky="W")
     var4 = tkinter.IntVar()
     tkinter.Checkbutton(main, text="Class Mods", variable=var4, anchor="w", command=query).\
-        grid(row=7, column=6, columnspan=3, sticky="W")
+        grid(row=6, column=8, columnspan=3, sticky="W")
     var5 = tkinter.IntVar()
     tkinter.Checkbutton(main, text="Relics", variable=var5, anchor="w", command=query).\
-        grid(row=8, column=6, columnspan=3, sticky="W")
-    # sets up listbox and mousewheel scroll capabilities
+        grid(row=7, column=8, columnspan=3, sticky="W")
+    #sets up listbox and mousewheel scroll capabilities
     tkinter.Label(main, width=1).grid(row=9)
     tkinter.Label(main, text='Results', relief=tkinter.RIDGE).grid(row=10)
     scrollbar = tkinter.Scrollbar(main)
@@ -210,6 +551,11 @@ def initalize():
         listbox.insert(tkinter.END, str(' '))
     listbox.grid(row=11, columnspan=10, rowspan=10, padx=30)
     scrollbar.config(command=listbox.yview)
+    #button for list, add and destroy
+    addb = tkinter.Button(main, text='Add to Character')
+    addb.grid(row=21, column=1)
+    deleteb = tkinter.Button(main, text='Delete from Character')
+    deleteb.grid(row=21, column=7)
     main.mainloop()
 
 def login():
