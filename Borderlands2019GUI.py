@@ -6,6 +6,7 @@ from tkinter import ttk
 global r
 global e1
 global e2
+global e
 global user
 global characters
 #connection to DB
@@ -50,7 +51,10 @@ global ammo4
 global ammo5
 global ammo6
 global ammo7
-
+inventory = ("INSERT INTO inventory "
+             "(user_id, hunter_id, gun_id, shield, class_mod, relic, grenade_mod) "
+             "VALUES (%s,%s,%s,%s,%s,%s,%s)"
+             )
 def query():
     global listbox
     global previousSearch
@@ -208,12 +212,16 @@ def query():
                         for (ident, name, item, damage, rarity, manu) in list5:
                             listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                             "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
+            else:
+                if previousSearch == 'Show Character Inventory' or previousSearch == 'Show All Items':
+                    listbox.delete(0, tkinter.END)
         if previousSearch == 'Show All Item Locations' and previousPreviousSearch != previousSearch:
             #USE SP
             previousPreviousSearch = previousSearch
         if previousCharacter != '. . .': # check if character selected
             #all possibilities
             if previousSearch == "Show Current Character Stats and Badass":
+                previousPreviousSearch = previousSearch
                 listbox.delete(0, tkinter.END)
                 cursor.execute("SELECT * from vault_hunter join user on vault_hunter.user_id = user.user_id where username = \'" +
                     e1 + "\' and name = \'" + previousCharacter + "\'")
@@ -244,60 +252,70 @@ def query():
             gunSMG.get() == 1 or gunShotgun.get() == 1 or gunSniper.get() == 1 or gunPistol.get() == 1 or
             gunRocket.get() == 1):
                 if previousSearch == 'Show Character Inventory':
+                    cursor.execute(
+                        "SELECT hunter_id, vault_hunter.user_id from vault_hunter join user on "
+                        "vault_hunter.user_id = user.user_id where username = \'" + e1 + "\' and name = \'" +
+                         previousCharacter + "\'")
+                    character = cursor.fetchall()
                     listbox.delete(0, tkinter.END)
                     listbox.insert(tkinter.END, "Name   :-:   Item Type   :-:   Damage Type   " +
                                    ":-:   Rarity   :-:   Manufacturer")
                     list1 = None
                     if gunAR.get() == 1:
-                        # TODO FOR EACH manipulate query for inventory join and character join
-                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
-                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type = "+
-                                       "'Assault Rifle'")
+                        cursor.execute("SELECT gun.gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join"
+                                       + " manufacturer on gun.manu_id = manufacturer.manu_id join inventory on" +
+                                       " inventory.gun_id = gun.gun_id where hunter_id = "+ str(character[0][0]) +
+                                       " and user_id = " + str(character[0][1]) +" and type = 'Assault Rifle'")
                         if list1 is not None:
                             list1.extend(cursor.fetchall())
                         else:
                             list1 = cursor.fetchall()
                     if gunSMG.get() == 1:
-                        # TODO FOR EACH manipulate query for inventory join and character join
-                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
-                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type =" +
-                                       "'Submachine Gun'")
+                        cursor.execute("SELECT gun.gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join"
+                                       +" manufacturer on gun.manu_id = manufacturer.manu_id join inventory on" +
+                                       " inventory.gun_id = gun.gun_id where hunter_id = "+ str(character[0][0]) +
+                                       " and inventory.user_id = " + str(character[0][1]) +
+                                       " and type ='Submachine Gun'")
                         if list1 is not None:
                             list1.extend(cursor.fetchall())
                         else:
                             list1 = cursor.fetchall()
                     if gunPistol.get() == 1:
-                        # TODO FOR EACH manipulate query for inventory join and character join
-                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
-                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type =" +
-                                       " 'Pistol'")
+                        cursor.execute("SELECT gun.gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join"
+                                       +" manufacturer on gun.manu_id = manufacturer.manu_id join inventory on" +
+                                       " inventory.gun_id = gun.gun_id where hunter_id = "+ str(character[0][0]) +
+                                       " and inventory.user_id = " + str(character[0][1]) +
+                                       " and type = 'Pistol'")
                         if list1 is not None:
                             list1.extend(cursor.fetchall())
                         else:
                             list1 = cursor.fetchall()
                     if gunShotgun.get() == 1:
-                        # TODO FOR EACH manipulate query for inventory join and character join
-                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
-                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type = " +
-                                       "'Shotgun'")
+                        cursor.execute("SELECT gun.gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join"
+                                       +" manufacturer on gun.manu_id = manufacturer.manu_id join inventory on" +
+                                       " inventory.gun_id = gun.gun_id where hunter_id = "+ str(character[0][0]) +
+                                       " and inventory.user_id = " + str(character[0][1]) +
+                                       " and type = 'Shotgun'")
                         if list1 is not None:
                             list1.extend(cursor.fetchall())
                         else:
                             list1 = cursor.fetchall()
                     if gunSniper.get() == 1:
-                        # TODO FOR EACH manipulate query for inventory join and character join
-                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
-                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type =" +
-                                       " 'Sniper'")
+                        cursor.execute("SELECT gun.gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join"
+                                       +" manufacturer on gun.manu_id = manufacturer.manu_id join inventory on" +
+                                       " inventory.gun_id = gun.gun_id where hunter_id = "+ str(character[0][0]) +
+                                       " and inventory.user_id = " + str(character[0][1]) +
+                                       " and type = 'Sniper Rifle'")
                         if list1 is not None:
                             list1.extend(cursor.fetchall())
                         else:
                             list1 = cursor.fetchall()
                     if gunRocket.get() == 1:
-                        # TODO FOR EACH manipulate query for inventory join and character join
-                        cursor.execute("SELECT gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join" +
-                                       " manufacturer on gun.manu_id = manufacturer.manu_id where type =" +
-                                       "'Rocket Launcher'")
+                        cursor.execute("SELECT gun.gun_id, gun_name, type, damage_type, rarity, manu_name FROM gun join"
+                                       +" manufacturer on gun.manu_id = manufacturer.manu_id join inventory on" +
+                                       " inventory.gun_id = gun.gun_id where hunter_id = "+ str(character[0][0]) +
+                                       " and inventory.user_id = " + str(character[0][1]) +
+                                       " and type = 'Rocket Launcher'")
                         if list1 is not None:
                             list1.extend(cursor.fetchall())
                         else:
@@ -310,37 +328,44 @@ def query():
                     #command ^ has been selected
                     # Each Checkbox is checked
                     if var2.get() == 1:
-                        # manipulate query for inventory join and character join
-                        cursor.execute("SELECT shield_id, shield_name, item_type, damage_type, rarity, manu_name " +
-                        "FROM shield join manufacturer on shield.manu_id = manufacturer.manu_id")
+                        cursor.execute("SELECT shield.shield_id, shield_name, item_type, damage_type, rarity, manu_name"
+                        +" FROM shield join manufacturer on shield.manu_id = manufacturer.manu_id join inventory on" +
+                                       " inventory.shield = shield.shield_id where hunter_id = "+ str(character[0][0]) +
+                                       " and inventory.user_id = " + str(character[0][1]))
                         list2 = cursor.fetchall()
                         for (ident, name, item, damage, rarity, manu) in list2:
                             listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                             "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
                     if var3.get() == 1:
-                        # manipulate query for inventory join and character join
-                        cursor.execute("SELECT grenade_id, grenade_name, item_type, damage_type, rarity, manu_name " +
-                        "FROM grenade join manufacturer on grenade.manu_id = manufacturer.manu_id")
+                        cursor.execute("SELECT grenade.grenade_id, grenade_name, item_type, damage_type, rarity, "
+                         + "manu_name FROM grenade join manufacturer on grenade.manu_id = manufacturer.manu_id "+
+                         "join inventory on inventory.grenade_mod = grenade.grenade_id where hunter_id = " +
+                                       str(character[0][0]) + " and inventory.user_id = " + str(character[0][1]))
                         list3 = cursor.fetchall()
                         for (ident, name, item, damage, rarity, manu) in list3:
                             listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                             "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
                     if var4.get() == 1:
-                        # manipulate query for inventory join and character join
-                        cursor.execute("SELECT mod_id, mod_name, item_type, damage_type, rarity, manu_name " +
-                                       "FROM class_mod join manufacturer on class_mod.manu_id = manufacturer.manu_id")
+                        cursor.execute("SELECT class_mod.mod_id, mod_name, item_type, damage_type, rarity, manu_name " +
+                                       "FROM class_mod join manufacturer on class_mod.manu_id = manufacturer.manu_id " +
+                                       "join inventory on inventory.class_mod = class_mod.mod_id where hunter_id = "
+                                       + str(character[0][0]) +" and inventory.user_id = " + str(character[0][1]))
                         list4 = cursor.fetchall()
                         for (ident, name, item, damage, rarity, manu) in list4:
                             listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                             "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
                     if var5.get() == 1:
-                        # manipulate query for inventory join and character join
-                        cursor.execute("SELECT relic_id, relic_name, item_type, damage_type, rarity, manu_name " +
-                                       "FROM relic join manufacturer on relic.manu_id = manufacturer.manu_id")
+                        cursor.execute("SELECT relic.relic_id, relic_name, item_type, damage_type, rarity, manu_name " +
+                                       "FROM relic join manufacturer on relic.manu_id = manufacturer.manu_id "
+                                       "join inventory on inventory.relic = relic.relic_id where hunter_id = "
+                                       + str(character[0][0]) + " and inventory.user_id = " + str(character[0][1]))
                         list5 = cursor.fetchall()
                         for (ident, name, item, damage, rarity, manu) in list5:
                             listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                             "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
+            else:
+                if previousSearch == 'Show Character Inventory' or previousSearch == 'Show All Items':
+                    listbox.delete(0, tkinter.END)
 
 def onSelectSearch(event=None):
     global previousSearch
@@ -384,6 +409,376 @@ def onSelectCharacter(event=None):
         ammo7.config(text=str(gren))
     query()
 
+def addtochar():
+    global cursor
+    global connection
+    global previousSearch
+    global previousCharacter
+    global characters
+    global listbox
+    global e1
+    global gunAR
+    global gunPistol
+    global gunRocket
+    global gunShotgun
+    global gunSMG
+    global gunSniper
+    global var1
+    global list1
+    global var2
+    global list2
+    global var3
+    global list3
+    global var4
+    global list4
+    global var5
+    global list5
+    if previousSearch == 'Show All Items(Ignore Checkboxes)' or previousSearch == 'Show All Items'or \
+            previousSearch == 'Show Character Inventory':
+        x = listbox.index(tkinter.ACTIVE)
+        if x != 0:
+            x = x - 1
+            row = None
+            if (var2.get() == 1 or var3.get() == 1 or var4.get() == 1 or var5.get() == 1 or gunAR.get() == 1 or
+                    gunSMG.get() == 1 or gunShotgun.get() == 1 or gunSniper.get() == 1 or gunPistol.get() == 1 or
+                    gunRocket.get() == 1):
+                if list1 is not None and (gunAR.get() == 1 or gunSMG.get() == 1 or gunShotgun.get() == 1 or
+                                          gunSniper.get() == 1 or gunPistol.get() == 1 or gunRocket.get() == 1):
+                    if (x - len(list1)) < 0:
+                        row = list1[x]
+                    else:
+                        x = x - len(list1)
+                        if list2 is not None and var2.get() == 1:
+                            if (x - len(list2)) < 0:
+                                row = list2[x]
+                            else:
+                                x = x - len(list2)
+                                if list3 is not None and var3.get() == 1:
+                                    if (x - len(list3)) < 0:
+                                        row = list3[x]
+                                    else:
+                                        x = x - len(list3)
+                                        if list4 is not None and var4.get() == 1:
+                                            if (x - len(list4)) < 0:
+                                                row = list4[x]
+                                            else:
+                                                x = x - len(list4)
+                                                if list5 is not None and var5.get() == 1:
+                                                    row = list5[x]
+                                        else:
+                                            if list5 is not None and var5.get() == 1:
+                                                row = list5[x]
+                                else:
+                                    if list4 is not None and var4.get() == 1:
+                                        if (x - len(list4)) < 0:
+                                            row = list4[x]
+                                        else:
+                                            x = x - len(list4)
+                                            if list5 is not None and var5.get() == 1:
+                                                row = list5[x]
+                                    else:
+                                        if list5 is not None and var5.get() == 1:
+                                            row = list5[x]
+                        else:
+                            if list3 is not None and var3.get() == 1:
+                                if (x - len(list3)) < 0:
+                                    row = list3[x]
+                                else:
+                                    x = x - len(list3)
+                                    if list4 is not None and var4.get() == 1:
+                                        if (x - len(list4)) < 0:
+                                            row = list4[x]
+                                        else:
+                                            x = x - len(list4)
+                                            if list5 is not None and var5.get() == 1:
+                                                row = list5[x]
+                                    else:
+                                        if list5 is not None and var5.get() == 1:
+                                            row = list5[x]
+                            else:
+                                if list4 is not None and var4.get() == 1:
+                                    if (x - len(list4)) < 0:
+                                        row = list4[x]
+                                    else:
+                                        x = x - len(list4)
+                                        if list5 is not None and var5.get() == 1:
+                                            row = list5[x]
+                                else:
+                                    if list5 is not None and var5.get() == 1:
+                                        row = list5[x]
+                else:
+                    if list2 is not None and var2.get() == 1:
+                        if (x - len(list2)) < 0:
+                            row = list2[x]
+                        else:
+                            x = x - len(list2)
+                            if list3 is not None and var3.get() == 1:
+                                if (x - len(list3)) < 0:
+                                    row = list3[x]
+                                else:
+                                    x = x - len(list3)
+                                    if list4 is not None and var4.get() == 1:
+                                        if (x - len(list4)) < 0:
+                                            row = list4[x]
+                                        else:
+                                            x = x - len(list4)
+                                            if list5 is not None and var5.get() == 1:
+                                                row = list5[x]
+                                    else:
+                                        if list5 is not None and var5.get() == 1:
+                                            row = list5[x]
+                            else:
+                                if list4 is not None and var4.get() == 1:
+                                    if (x - len(list4)) < 0:
+                                        row = list4[x]
+                                    else:
+                                        x = x - len(list4)
+                                        if list5 is not None and var5.get() == 1:
+                                            row = list5[x]
+                                else:
+                                    if list5 is not None and var5.get() == 1:
+                                        row = list5[x]
+                    else:
+                        if list3 is not None and var3.get() == 1:
+                            if (x - len(list3)) < 0:
+                                row = list3[x]
+                            else:
+                                x = x - len(list3)
+                                if list4 is not None and var4.get() == 1:
+                                    if (x - len(list4)) < 0:
+                                        row = list4[x]
+                                    else:
+                                        x = x - len(list4)
+                                        if list5 is not None and var5.get() == 1:
+                                            row = list5[x]
+                                else:
+                                    if list5 is not None and var5.get() == 1:
+                                        row = list5[x]
+                        else:
+                            if list4 is not None and var4.get() == 1:
+                                if (x - len(list4)) < 0:
+                                    row = list4[x]
+                                else:
+                                    x = x - len(list4)
+                                    if list5 is not None and var5.get() == 1:
+                                        row = list5[x]
+                            else:
+                                if list5 is not None and var5.get() == 1:
+                                    row = list5[x]
+            if previousSearch == 'Show All Items(Ignore Checkboxes)':
+                if (x - len(list1)) < 0:
+                    row = list1[x]
+                    x = x - len(list1)
+                else:
+                    x = x - len(list1)
+                    if (x - len(list2)) < 0:
+                        row = list2[x]
+                        x = x - len(list2)
+                    else:
+                        x = x - len(list2)
+                        if (x - len(list3)) < 0:
+                            row = list3[x]
+                            x = x - len(list3)
+                        else:
+                            x = x - len(list3)
+                            if (x - len(list4)) < 0:
+                                row = list4[x]
+                                x = x - len(list4)
+                            else:
+                                x = x - len(list4)
+                                row = list5[x]
+            if previousCharacter != '. . .':
+                    cursor.execute(
+                        "SELECT * from vault_hunter join user on vault_hunter.user_id = user.user_id where "
+                        "username = \'" + e1 + "\' and name = \'" + previousCharacter + "\'")
+                    character = cursor.fetchall()
+                    global inventory
+                    if row[2] == 'Sniper Rifle' or row[2] == 'Submachine Gun' or row[2] == 'Assault Rifle' or \
+                            row[2] == 'Pistol' or row[2] == 'Shotgun' or row[2] == 'Rocket Launcher':
+                        cursor.execute(inventory, (character[0][1], character[0][0], row[0], None, None, None, None))
+                    elif row[2] == 'Shield':
+                        cursor.execute(inventory, (character[0][1], character[0][0], None, row[0], None, None, None))
+                    elif row[2] == 'Grenade':
+                        cursor.execute(inventory, (character[0][1], character[0][0], None, None, None, None, row[0]))
+                    elif row[1] == 'Relic': #TODO CHANGE IF TABLE IS FIXED
+                        cursor.execute(inventory, (character[0][1], character[0][0], None, None, None, row[0], None))
+                    else:
+                        print(row)
+                        cursor.execute(inventory, (character[0][1], character[0][0], None, None, row[0], None, None))
+                    e = tkinter.Tk()
+                    e.minsize(260, 40)
+                    e.title('Added Item')
+                    tkinter.Label(e, text=row[1]+" added to "+previousCharacter).pack()
+                    button = tkinter.Button(e, text='Okay', width=25, command=e.destroy)
+                    button.pack()
+                    connection.commit()
+                    query()
+def deletefromchar():
+    global cursor
+    global connection
+    global previousSearch
+    global previousCharacter
+    if previousCharacter != '. . .' and previousSearch == 'Show Character Inventory':
+        x = listbox.index(tkinter.ACTIVE)
+        if x != 0:
+            x = x - 1
+            row = None
+            if (var2.get() == 1 or var3.get() == 1 or var4.get() == 1 or var5.get() == 1 or gunAR.get() == 1 or
+                    gunSMG.get() == 1 or gunShotgun.get() == 1 or gunSniper.get() == 1 or gunPistol.get() == 1 or
+                    gunRocket.get() == 1):
+                if list1 is not None and (gunAR.get() == 1 or gunSMG.get() == 1 or gunShotgun.get() == 1 or
+                                          gunSniper.get() == 1 or gunPistol.get() == 1 or gunRocket.get() == 1):
+                    if (x - len(list1)) < 0:
+                        row = list1[x]
+                    else:
+                        x = x - len(list1)
+                        if list2 is not None and var2.get() == 1:
+                            if (x - len(list2)) < 0:
+                                row = list2[x]
+                            else:
+                                x = x - len(list2)
+                                if list3 is not None and var3.get() == 1:
+                                    if (x - len(list3)) < 0:
+                                        row = list3[x]
+                                    else:
+                                        x = x - len(list3)
+                                        if list4 is not None and var4.get() == 1:
+                                            if (x - len(list4)) < 0:
+                                                row = list4[x]
+                                            else:
+                                                x = x - len(list4)
+                                                if list5 is not None and var5.get() == 1:
+                                                    row = list5[x]
+                                        else:
+                                            if list5 is not None and var5.get() == 1:
+                                                row = list5[x]
+                                else:
+                                    if list4 is not None and var4.get() == 1:
+                                        if (x - len(list4)) < 0:
+                                            row = list4[x]
+                                        else:
+                                            x = x - len(list4)
+                                            if list5 is not None and var5.get() == 1:
+                                                row = list5[x]
+                                    else:
+                                        if list5 is not None and var5.get() == 1:
+                                            row = list5[x]
+                        else:
+                            if list3 is not None and var3.get() == 1:
+                                if (x - len(list3)) < 0:
+                                    row = list3[x]
+                                else:
+                                    x = x - len(list3)
+                                    if list4 is not None and var4.get() == 1:
+                                        if (x - len(list4)) < 0:
+                                            row = list4[x]
+                                        else:
+                                            x = x - len(list4)
+                                            if list5 is not None and var5.get() == 1:
+                                                row = list5[x]
+                                    else:
+                                        if list5 is not None and var5.get() == 1:
+                                            row = list5[x]
+                            else:
+                                if list4 is not None and var4.get() == 1:
+                                    if (x - len(list4)) < 0:
+                                        row = list4[x]
+                                    else:
+                                        x = x - len(list4)
+                                        if list5 is not None and var5.get() == 1:
+                                            row = list5[x]
+                                else:
+                                    if list5 is not None and var5.get() == 1:
+                                        row = list5[x]
+                else:
+                    if list2 is not None and var2.get() == 1:
+                        if (x - len(list2)) < 0:
+                            row = list2[x]
+                        else:
+                            x = x - len(list2)
+                            if list3 is not None and var3.get() == 1:
+                                if (x - len(list3)) < 0:
+                                    row = list3[x]
+                                else:
+                                    x = x - len(list3)
+                                    if list4 is not None and var4.get() == 1:
+                                        if (x - len(list4)) < 0:
+                                            row = list4[x]
+                                        else:
+                                            x = x - len(list4)
+                                            if list5 is not None and var5.get() == 1:
+                                                row = list5[x]
+                                    else:
+                                        if list5 is not None and var5.get() == 1:
+                                            row = list5[x]
+                            else:
+                                if list4 is not None and var4.get() == 1:
+                                    if (x - len(list4)) < 0:
+                                        row = list4[x]
+                                    else:
+                                        x = x - len(list4)
+                                        if list5 is not None and var5.get() == 1:
+                                            row = list5[x]
+                                else:
+                                    if list5 is not None and var5.get() == 1:
+                                        row = list5[x]
+                    else:
+                        if list3 is not None and var3.get() == 1:
+                            if (x - len(list3)) < 0:
+                                row = list3[x]
+                            else:
+                                x = x - len(list3)
+                                if list4 is not None and var4.get() == 1:
+                                    if (x - len(list4)) < 0:
+                                        row = list4[x]
+                                    else:
+                                        x = x - len(list4)
+                                        if list5 is not None and var5.get() == 1:
+                                            row = list5[x]
+                                else:
+                                    if list5 is not None and var5.get() == 1:
+                                        row = list5[x]
+                        else:
+                            if list4 is not None and var4.get() == 1:
+                                if (x - len(list4)) < 0:
+                                    row = list4[x]
+                                else:
+                                    x = x - len(list4)
+                                    if list5 is not None and var5.get() == 1:
+                                        row = list5[x]
+                            else:
+                                if list5 is not None and var5.get() == 1:
+                                    row = list5[x]
+                cursor.execute(
+                    "SELECT * from vault_hunter join user on vault_hunter.user_id = user.user_id where "
+                    "username = \'" + e1 + "\' and name = \'" + previousCharacter + "\'")
+                character = cursor.fetchall()
+                if row[2] == 'Sniper Rifle' or row[2] == 'Submachine Gun' or row[2] == 'Assault Rifle' or \
+                        row[2] == 'Pistol' or row[2] == 'Shotgun' or row[2] == 'Rocket Launcher':
+                    cursor.execute("delete from inventory where gun_id = \'"+ str(row[0]) +"\' and user_id = \'" +
+                                   str(character[0][1]) +"\' and hunter_id = \'"+ str(character[0][0]) +"\' LIMIT 1")
+                elif row[2] == 'Shield':
+                    cursor.execute("delete from inventory where shield = \'" +str(row[0]) + "\' and user_id = \'" +
+                                   str(character[0][1]) + "\' and hunter_id = \'" + str(character[0][0]) + "\' LIMIT 1")
+                elif row[2] == 'Grenade':
+                    cursor.execute("delete from inventory where grenade_mod = \'" + str(row[0]) + "\' and user_id = \'"
+                                   + str(character[0][1]) + "\' and hunter_id = \'" + str(character[0][0])
+                                   + "\' LIMIT 1")
+                elif row[1] == 'Relic':  # TODO CHANGE IF TABLE IS FIXED
+                    cursor.execute("delete from inventory where relic = \'" + str(row[0]) + "\' and user_id = \'" +
+                                   str(character[0][1]) + "\' and hunter_id = \'" + str(character[0][0]) + "\' LIMIT 1")
+                else:
+                    print(row)
+                    cursor.execute("delete from inventory where class_mod = \'" + str(row[0]) + "\' and user_id = \'" +
+                                   str(character[0][1]) + "\' and hunter_id = \'" + str(character[0][0]) + "\' LIMIT 1")
+                e = tkinter.Tk()
+                e.minsize(260, 40)
+                e.title('Deleted Item')
+                tkinter.Label(e, text=row[1] + " deleted from " + previousCharacter).pack()
+                button = tkinter.Button(e, text='Okay', width=25, command=e.destroy)
+                button.pack()
+                connection.commit()
+                query()
 def update():
     global e1
     global cursor
@@ -449,6 +844,16 @@ def initalize():
     global ammo5
     global ammo6
     global ammo7
+    global list1
+    global list2
+    global list3
+    global list4
+    global list5
+    list1 = None
+    list2 = None
+    list3 = None
+    list4 = None
+    list5 = None
     e1 = e1.get()
     r.destroy()
     cursor = connection.cursor()
@@ -489,7 +894,6 @@ def initalize():
     ammo6 = tkinter.Label(main, width=5, relief=tkinter.RIDGE)
     ammo6.grid(row=9, column=5, columnspan=3)
     tkinter.Label(main, text='Other Items', relief=tkinter.RIDGE).grid(row=3, column=8, columnspan=3)
-    #character select TODO make search for characters and list them
     names = []
     for (hid, cid, cass, level, name) in characters:
         names.append(name)
@@ -547,14 +951,12 @@ def initalize():
     scrollbar = tkinter.Scrollbar(main)
     listbox = tkinter.Listbox(main, width=100, yscrollcommand=scrollbar.set)
     listbox.insert(tkinter.END, ". . .")
-    for i in range(9):
-        listbox.insert(tkinter.END, str(' '))
     listbox.grid(row=11, columnspan=10, rowspan=10, padx=30)
     scrollbar.config(command=listbox.yview)
     #button for list, add and destroy
-    addb = tkinter.Button(main, text='Add to Character')
+    addb = tkinter.Button(main, text='Add/Duplicate to Character', command=addtochar)
     addb.grid(row=21, column=1)
-    deleteb = tkinter.Button(main, text='Delete from Character')
+    deleteb = tkinter.Button(main, text='Delete from Character', command=deletefromchar)
     deleteb.grid(row=21, column=7)
     main.mainloop()
 
@@ -566,10 +968,10 @@ def login():
     try:
         connection = mysql.connector.connect(
         host='ethan.cikeys.com',
-        #user=e1.get(),
-        #password=e2.get(),
-        user='ethancik_charles',
-        password='Borderlands2019!',
+        user=e1.get(),
+        password=e2.get(),
+        #user='ethancik_charles',
+        #password='Borderlands2019!',
         database='ethancik_borderlands',
         auth_plugin='mysql_native_password')
     except mysql.connector.Error as err:
