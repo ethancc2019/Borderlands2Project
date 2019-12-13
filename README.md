@@ -1,17 +1,8 @@
 # Borderlands2Project
 COMP 420 DB Project
 
-To set up a seperate instance of this database, Run the Import Data Files with different credentials between lines 7 and 10.
-
-To connect to a seperate instance in the GUI, change the credentials between line 1872 and 1878.
-
 Under normal operations, this database connects to a CI-Keys MySQL server. A user account and IP address permissions will be provided 
 from an administator. 
-
-
-
-
-
 
 Using the GUI is simple. Upon running the script, you will be prompted for login credentials. Inputting the correct username and password
 will allow access to the database and functionality for the main UI. 
