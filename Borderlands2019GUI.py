@@ -1030,10 +1030,10 @@ def cChar():
                     connection.commit()
                     cursor.execute(
                         "SELECT * from vault_hunter join user on vault_hunter.user_id = user.user_id where username = \'" +
-                        e1 + "\' and name = \'" +  u.get() + "\'")
+                        e1 + "\' and name = \'" + u.get() + "\'")
                     character = cursor.fetchall()
-                    cursor.execute("INSERT INTO currency values ("+character[0][0]+",0,0,0,0,0,0,0,0,0,0,"+
-                                   character[0][1]+")")
+                    cursor.execute("INSERT INTO currency values ("+str(character[0][0])+",0,0,0,0,0,0,0,0,0,0,"+
+                                   str(character[0][1])+")")
                     connection.commit()
                     cursor.execute("INSERT INTO equipped values (" + str(character[0][1]) + "," +
                                    str(character[0][0]) + ",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)")
