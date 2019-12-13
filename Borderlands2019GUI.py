@@ -343,6 +343,14 @@ def query():
             listbox.insert(tkinter.END, "Enemy @ Location")
             for (name, location) in cursor:
                 listbox.insert(tkinter.END, name + " @ "+ location)
+        elif previousSearch == "Show All NPCs":
+            previousPreviousSearch = "Show All NPCs"
+            listbox.delete(0, tkinter.END)
+            cursor.execute("SELECT name, location_name from npc join location "
+                           "on npc.location_id = location.location_id")
+            listbox.insert(tkinter.END, "NPC @ Location")
+            for (name, location) in cursor:
+                listbox.insert(tkinter.END, name + " @ " + location)
         elif previousCharacter != '. . .': # check if character selected
             #all possibilities
             if previousSearch == "Show Current Character Stats and Badass":
@@ -1750,7 +1758,7 @@ def initalize(connect, r, evalue):
     combo = ttk.Combobox(main, width=100, values=("Show Character Inventory", "Show Character Equipment",
     "Show Current Character Stats and Badass","Show All Items(Ignore Checkboxes)", "Show All Items",
     "Show All Item Locations(Ignore Checkboxes)", "Show All Item Locations", "Show All Vehicles",
-    "Show All Enemy Locations"))
+    "Show All Enemy Locations","Show All NPCs"))
     combo.set(". . .")
     combo.grid(row=1, columnspan=10, padx=30)
     combo.bind('<<ComboboxSelected>>', onSelectSearch)
