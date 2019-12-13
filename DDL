@@ -143,3 +143,25 @@ create table npc(
     name varchar(50),
     foreign key(location_id) references location(location_id)
 )engine=innodb;
+
+CREATE TABLE `relic` (
+  `relic_id` int(11) NOT NULL AUTO_INCREMENT,
+  `manu_id` int(11) DEFAULT NULL,
+  `location_id` int(11) DEFAULT NULL,
+  `item_type` varchar(30) DEFAULT NULL,
+  `relic_name` varchar(150) DEFAULT NULL,
+  `relic_perk` varchar(255) DEFAULT NULL,
+  `manufacturer` varchar(150) DEFAULT NULL,
+  `location_name` varchar(200) DEFAULT NULL,
+  `damage_type` varchar(200) DEFAULT NULL,
+  `dropped_by` varchar(200) DEFAULT NULL,
+  `minimum_task` varchar(200) DEFAULT NULL,
+  `rarity` varchar(50) DEFAULT NULL,
+  `dlc` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`relic_id`),
+  KEY `manu_id` (`manu_id`),
+  KEY `location_id` (`location_id`),
+  CONSTRAINT `relic_ibfk_1` FOREIGN KEY (`manu_id`) REFERENCES `manufacturer` (`manu_id`),
+  CONSTRAINT `relic_ibfk_2` FOREIGN KEY (`location_id`) REFERENCES `location` (`location_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1
+
