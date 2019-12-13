@@ -1,7 +1,7 @@
 # Borderlands2Project
 COMP 420 DB Project
 
-Under normal operations, this database connects to a CI-Keys MySQL server with its own references, tables, views, procedures, functions and triggers. A user account and IP address permissions will be provided from an administator. 
+Under normal operations, this database connects to a CI-Keys MariaDB instance with its own references, tables, views, procedures, functions and triggers. A user account and IP address permissions will be provided from an administator. 
 
 Data is inserted by the .py scripts in Import Data Files Folder. 
 
