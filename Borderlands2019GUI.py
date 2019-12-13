@@ -2,76 +2,19 @@ import tkinter
 import mysql.connector
 from mysql.connector import errorcode
 from tkinter import ttk
-#initilization entities
-global r
-global e1
-global e2
-global e
-global user
-global characters
-global main
-#connection to DB
-global connection
-global cursor
-#display and selected element
-global listbox
-#gun
-global list1
-global gunAR
-global gunPistol
-global gunRocket
-global gunShotgun
-global gunSMG
-global gunSniper
-#shields
-global var2
-global list2
-#grenade
-global var3
-global list3
-#class
-global var4
-global list4
-#relic
-global var5
-global list5
-#search and character select
-global previousSearch
-global previousCharacter
-global previousPreviousSearch
-global previousPreviousCharacter
-#currency
-global money
-global keys
-global eridium
-#ammo
-global ammo1
-global ammo2
-global ammo3
-global ammo4
-global ammo5
-global ammo6
-global ammo7
-#variables to create
-global u
-global a
-global v
-#insert
+
 inventory = ("INSERT INTO inventory "
              "(user_id, hunter_id, gun_id, shield, class_mod, relic, grenade_mod) "
-             "VALUES (%s,%s,%s,%s,%s,%s,%s)"
-             )
-charInsert = ("INSERT INTO vault_hunter "
-             "(user_id, class, level, name)"
-             "VALUES (%s,%s,%s,%s)"
-             )
-#additional ui
-global confirm
-global confirm2
-global k1
-global k2
-global k3
-global k4
+             "VALUES (%s,%s,%s,%s,%s,%s,%s)")
+
+def getCharacter():
+    global cursor
+    global e1
+    global previousCharacter
+    cursor.execute("SELECT * from vault_hunter join user on vault_hunter.user_id = user.user_id where username = \'" +
+                   e1 + "\' and name = \'" + previousCharacter + "\'")
+    return cursor.fetchall()
+
 def errorbox(title, content):
     e = tkinter.Tk()
     e.minsize(260, 40)
@@ -85,7 +28,6 @@ def query():
     global previousSearch
     global previousCharacter
     global previousPreviousSearch
-    global previousPreviousCharacter
     global gunAR
     global gunPistol
     global gunRocket
@@ -104,10 +46,6 @@ def query():
     global cursor
     global e1
     global user
-    print("search:", previousSearch)
-    print("character:", previousCharacter)
-    print(listbox.index(tkinter.ACTIVE))
-    print("%d, %d, %d, %d" % ( var2.get(), var3.get(), var4.get(), var5.get()))
     if previousSearch != '. . .': # does not operate if no command
         #first check all general things
         #show all items
@@ -140,13 +78,14 @@ def query():
             for (ident, name, item, damage, rarity, manu) in list4:
                 listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                                "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
-            cursor.execute("SELECT relic_id, relic_name, item_type, damage_type, rarity, manu_name " +
+            cursor.execute("SELECT relic_id, item_type, relic_name, damage_type, rarity, manu_name " +
                            "FROM relic join manufacturer on relic.manu_id = manufacturer.manu_id")
+            #TODO FIX RELIC IF FIX
             list5 = cursor.fetchall()
             for (ident, name, item, damage, rarity, manu) in list5:
                 listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                                "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
-        if previousSearch == 'Show All Items':
+        elif previousSearch == 'Show All Items':
             previousPreviousSearch = 'Show All Items'
             if (var2.get() == 1 or var3.get() == 1 or var4.get() == 1 or var5.get() == 1 or gunAR.get() == 1 or
             gunSMG.get() == 1 or gunShotgun.get() == 1 or gunSniper.get() == 1 or gunPistol.get() == 1 or
@@ -237,19 +176,171 @@ def query():
                             listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                             "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
             else:
-                if previousSearch == 'Show Character Inventory' or previousSearch == 'Show All Items':
                     listbox.delete(0, tkinter.END)
-        if previousSearch == 'Show All Item Locations' and previousPreviousSearch != previousSearch:
-            #USE SP
-            previousPreviousSearch = previousSearch
-        if previousCharacter != '. . .': # check if character selected
+        elif previousSearch == 'Show All Item Locations':
+            previousPreviousSearch = 'Show All Item Locations'
+            if (var2.get() == 1 or var3.get() == 1 or var4.get() == 1 or var5.get() == 1 or gunAR.get() == 1 or
+            gunSMG.get() == 1 or gunShotgun.get() == 1 or gunSniper.get() == 1 or gunPistol.get() == 1 or
+            gunRocket.get() == 1):
+                    listbox.delete(0, tkinter.END)
+                    listbox.insert(tkinter.END, "Name   :-:   Location   :-:   DLC   " +
+                                   ":-:   Minimum Task")
+                    list1 = None
+                    if gunAR.get() == 1:
+                        cursor.execute(
+                            "SELECT gun_id, gun_name, type, location.location_name, dlc, minimum_task FROM gun join" +
+                            " location on gun.location_id = location.location_id where type = "+
+                                       "'Assault Rifle'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if gunSMG.get() == 1:
+                        cursor.execute(
+                            "SELECT gun_id, gun_name, type, location.location_name, dlc, minimum_task FROM gun join" +
+                            " location on gun.location_id = location.location_id where type = " +
+                            "'Submachine Gun'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if gunPistol.get() == 1:
+                        cursor.execute(
+                            "SELECT gun_id, gun_name, type, location.location_name, dlc, minimum_task FROM gun join" +
+                            " location on gun.location_id = location.location_id where type = " +
+                            "'Pistol'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if gunShotgun.get() == 1:
+                        cursor.execute(
+                            "SELECT gun_id, gun_name, type, location.location_name, dlc, minimum_task FROM gun join" +
+                            " location on gun.location_id = location.location_id where type = " +
+                            "'Shotgun'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if gunSniper.get() == 1:
+                        cursor.execute(
+                            "SELECT gun_id, gun_name, type, location.location_name, dlc, minimum_task FROM gun join" +
+                            " location on gun.location_id = location.location_id where type = " +
+                            "'Sniper Rifle'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if gunRocket.get() == 1:
+                        cursor.execute(
+                            "SELECT gun_id, gun_name, type, location.location_name, dlc, minimum_task FROM gun join" +
+                            " location on gun.location_id = location.location_id where type = " +
+                            "'Rocket Launcher'")
+                        if list1 is not None:
+                            list1.extend(cursor.fetchall())
+                        else:
+                            list1 = cursor.fetchall()
+                    if list1 is not None:
+                        for (ident, name, aa, item, damage, rarity) in list1:
+                            listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
+                            "   :-:   " + str(damage) + "   :-:   " + str(rarity))
+                    # Each Checkbox is checked
+                    if var2.get() == 1:
+                        cursor.execute("SELECT shield_id, shield_name, item_type, location.location_name, dlc, "
+                                       "minimum_task " +
+                                       "FROM shield join location on shield.location_id = location.location_id")
+                        list2 = cursor.fetchall()
+                        for (ident, name, aa, item, damage, rarity) in list2:
+                            listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
+                                           "   :-:   " + str(damage) + "   :-:   " + str(rarity))
+                    if var3.get() == 1:
+                        cursor.execute("SELECT grenade_id, grenade_name, item_type, location.location_name, dlc,"
+                                       " minimum_task " +
+                                       "FROM grenade join location on grenade.location_id = location.location_id")
+                        list3 = cursor.fetchall()
+                        for (ident, name, aa, item, damage, rarity) in list3:
+                            listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
+                                           "   :-:   " + str(damage) + "   :-:   " + str(rarity))
+                    if var4.get() == 1:
+                        cursor.execute("SELECT mod_id, mod_name, item_type, location.location_name, dlc, "
+                                       "minimum_task " +
+                                       "FROM class_mod join location on class_mod.location_id = location.location_id")
+                        list4 = cursor.fetchall()
+                        for (ident, name, aa, item, damage, rarity) in list4:
+                            listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
+                                           "   :-:   " + str(damage) + "   :-:   " + str(rarity))
+                    if var5.get() == 1:
+                        cursor.execute("SELECT relic_id, relic_name, item_type, location.location_name, dlc,"
+                                       " minimum_task " +
+                                       "FROM relic join location on relic.location_id = location.location_id")
+                        # TODO FIX RELIC IF FIX
+                        list5 = cursor.fetchall()
+                        for (ident, aa, name, item, damage, rarity) in list5:
+                            listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
+                                           "   :-:   " + str(damage) + "   :-:   " + str(rarity))
+            else:
+                    listbox.delete(0, tkinter.END)
+        elif previousSearch == "Show All Item Locations(Ignore Checkboxes)" \
+                and previousPreviousSearch != previousSearch:
+            previousPreviousSearch = "Show All Item Locations(Ignore Checkboxes)"
+            listbox.delete(0, tkinter.END)
+            listbox.insert(tkinter.END, "Name   :-:   Location   :-:   DLC   " +
+                           ":-:   Minimum Task")
+            cursor.execute("SELECT gun_id, gun_name, type, location.location_name, dlc, minimum_task FROM gun join" +
+                           " location on gun.location_id = location.location_id")
+            list1 = cursor.fetchall()
+            for (ident, name, aa, item, damage, rarity) in list1:
+                listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
+                               "   :-:   " + str(damage) + "   :-:   " + str(rarity))
+            cursor.execute("SELECT shield_id, shield_name, item_type, location.location_name, dlc, minimum_task " +
+                           "FROM shield join location on shield.location_id = location.location_id")
+            list2 = cursor.fetchall()
+            for (ident, name, aa, item, damage, rarity) in list2:
+                listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
+                               "   :-:   " + str(damage) + "   :-:   " + str(rarity))
+            cursor.execute("SELECT grenade_id, grenade_name, item_type, location.location_name, dlc, minimum_task " +
+                           "FROM grenade join location on grenade.location_id = location.location_id")
+            list3 = cursor.fetchall()
+            for (ident, name, aa, item, damage, rarity) in list3:
+                listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
+                               "   :-:   " + str(damage) + "   :-:   " + str(rarity))
+            cursor.execute("SELECT mod_id, mod_name, item_type, location.location_name, dlc, minimum_task " +
+                           "FROM class_mod join location on class_mod.location_id = location.location_id")
+            list4 = cursor.fetchall()
+            for (ident, name, aa, item, damage, rarity) in list4:
+                listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
+                               "   :-:   " + str(damage) + "   :-:   " + str(rarity))
+            cursor.execute("SELECT relic_id, relic_name, item_type, location.location_name, dlc, minimum_task " +
+                           "FROM relic join location on relic.location_id = location.location_id")
+            # TODO FIX RELIC IF FIX
+            list5 = cursor.fetchall()
+            for (ident, aa, name, item, damage, rarity) in list5:
+                listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
+                               "   :-:   " + str(damage) + "   :-:   " + str(rarity))
+        elif previousSearch == 'Show All Vehicles':
+            previousPreviousSearch = 'Show All Vehicles'
+            listbox.delete(0, tkinter.END)
+            #TODO Change name if changed
+            cursor.execute("SELECT vechicle_name, vechicle_tye, vechicle_crew, vechicle_armaments, "
+                           "location.location_name from vechicle join location "
+                           "on vechicle.location_id = location.location_id")
+            x = 1
+            for(name, cartype, crew, arms, location) in cursor:
+                listbox.insert(tkinter.END, " ")
+                listbox.insert(tkinter.END, "Vehicle " + str(x) + ":")
+                listbox.insert(tkinter.END, "Vehicle Name: "+ name )
+                listbox.insert(tkinter.END, "Vehicle Type: " + cartype)
+                listbox.insert(tkinter.END, "Vehicle Crew: " + crew)
+                listbox.insert(tkinter.END, "Vehicle Weapons: " + arms)
+                listbox.insert(tkinter.END, "Vehicle Location: " + location)
+                listbox.insert(tkinter.END, " ")
+                x = x + 1
+        elif previousCharacter != '. . .': # check if character selected
             #all possibilities
             if previousSearch == "Show Current Character Stats and Badass":
-                previousPreviousSearch = previousSearch
+                previousPreviousSearch = "Show Current Character Stats and Badass"
                 listbox.delete(0, tkinter.END)
-                cursor.execute("SELECT * from vault_hunter join user on vault_hunter.user_id = user.user_id where username = \'" +
-                    e1 + "\' and name = \'" + previousCharacter + "\'")
-                character = cursor.fetchall()
+                character = getCharacter()
                 listbox.insert(tkinter.END, "User: " + user[0][1])
                 listbox.insert(tkinter.END, "Name: " + character[0][4])
                 listbox.insert(tkinter.END, "Class: " + character[0][2])
@@ -272,15 +363,71 @@ def query():
                 listbox.insert(tkinter.END, "Elemental Effect Chance: " + str(character[0][13]))
                 listbox.insert(tkinter.END, "Elemental Effect Damage: " + str(character[0][14]))
                 listbox.insert(tkinter.END, "Critical Hit Chance: " + str(character[0][15]))
-            if (var2.get() == 1 or var3.get() == 1 or var4.get() == 1 or var5.get() == 1 or gunAR.get() == 1 or
-            gunSMG.get() == 1 or gunShotgun.get() == 1 or gunSniper.get() == 1 or gunPistol.get() == 1 or
-            gunRocket.get() == 1):
-                if previousSearch == 'Show Character Inventory':
-                    cursor.execute(
-                        "SELECT hunter_id, vault_hunter.user_id from vault_hunter join user on "
-                        "vault_hunter.user_id = user.user_id where username = \'" + e1 + "\' and name = \'" +
-                         previousCharacter + "\'")
-                    character = cursor.fetchall()
+            elif previousSearch == 'Show Character Equipment':
+                previousPreviousSearch == 'Show Character Equipment'
+                character = getCharacter()
+                cursor.execute("SELECT * from equipped where user_id = \'" +
+                   str(character[0][1]) + "\' and hunter_id = \'" + str(character[0][0]) + "\'")
+                global equipList
+                equipList = cursor.fetchall()
+                listbox.delete(0, tkinter.END)
+                listbox.insert(tkinter.END, previousCharacter + " Equipped Items:")
+                if equipList[0][2] is None:
+                    listbox.insert(tkinter.END, "Gun 1: ")
+                else:
+                    cursor.execute("SELECT gun_id, gun_name from gun where gun_id = " + str(equipList[0][2]))
+                    temp = cursor.fetchall()
+                    listbox.insert(tkinter.END, "Gun 1: " + temp[0][1])
+                if equipList[0][3] is None:
+                    listbox.insert(tkinter.END, "Gun 2: ")
+                else:
+                    cursor.execute("SELECT gun_id, gun_name from gun where gun_id = " + str(equipList[0][3]))
+                    temp = cursor.fetchall()
+                    listbox.insert(tkinter.END, "Gun 2: " + temp[0][1])
+                if equipList[0][4] is None:
+                    listbox.insert(tkinter.END, "Gun 3: ")
+                else:
+                    cursor.execute("SELECT gun_id, gun_name from gun where gun_id = " + str(equipList[0][4]))
+                    temp = cursor.fetchall()
+                    listbox.insert(tkinter.END, "Gun 3: " + temp[0][1])
+                if equipList[0][5] is None:
+                    listbox.insert(tkinter.END, "Gun 4: ")
+                else:
+                    cursor.execute("SELECT gun_id, gun_name from gun where gun_id = " + str(equipList[0][5]))
+                    temp = cursor.fetchall()
+                    listbox.insert(tkinter.END, "Gun 4: " + temp[0][1])
+                if equipList[0][6] is None:
+                    listbox.insert(tkinter.END, "Grenade: ")
+                else:
+                    cursor.execute("SELECT grenade_id, grenade_name from grenade where grenade_id = " +\
+                                   str(equipList[0][6]))
+                    temp = cursor.fetchall()
+                    listbox.insert(tkinter.END, "Grenade: " + temp[0][1])
+                if equipList[0][7] is None:
+                    listbox.insert(tkinter.END, "Class Mod: ")
+                else:
+                    cursor.execute("SELECT mod_id, mod_name from class_mod where mod_id = " + str(equipList[0][7]))
+                    temp = cursor.fetchall()
+                    listbox.insert(tkinter.END, "Class Mod: " + temp[0][1])
+                if equipList[0][8] is None:
+                    listbox.insert(tkinter.END, "Relic: ")
+                else:
+                    cursor.execute("SELECT relic_id, item_type from relic where relic_id = " + str(equipList[0][8]))
+                    temp = cursor.fetchall()
+                    listbox.insert(tkinter.END, "Relic: " + temp[0][1])
+                if equipList[0][9] is None:
+                    listbox.insert(tkinter.END, "Shield: ")
+                else:
+                    cursor.execute("SELECT shield_id, shield_name from shield where shield_id = "+str(equipList[0][9]))
+                    temp = cursor.fetchall()
+                    listbox.insert(tkinter.END, "Shield: " + temp[0][1])
+
+            elif previousSearch == 'Show Character Inventory':
+                previousPreviousSearch = 'Show Character Inventory'
+                if (var2.get() == 1 or var3.get() == 1 or var4.get() == 1 or var5.get() == 1 or gunAR.get() == 1 or
+                gunSMG.get() == 1 or gunShotgun.get() == 1 or gunSniper.get() == 1 or gunPistol.get() == 1 or
+                gunRocket.get() == 1):
+                    character = getCharacter()
                     listbox.delete(0, tkinter.END)
                     listbox.insert(tkinter.END, "Name   :-:   Item Type   :-:   Damage Type   " +
                                    ":-:   Rarity   :-:   Manufacturer")
@@ -387,9 +534,16 @@ def query():
                         for (ident, name, item, damage, rarity, manu) in list5:
                             listbox.insert(tkinter.END, str(name) + "   :-:   " + str(item) +
                             "   :-:   " + str(damage) + "   :-:   " + str(rarity) + "   :-:   " + str(manu))
-            else:
-                if previousSearch == 'Show Character Inventory' or previousSearch == 'Show All Items':
+                else:
                     listbox.delete(0, tkinter.END)
+            else:
+                if previousPreviousSearch != 'Show All Item Locations(Ignore Checkboxes)' \
+                        and previousPreviousSearch != 'Show All Items(Ignore Checkboxes)':
+                    listbox.delete(0, tkinter.END)
+        else:
+            if previousPreviousSearch != 'Show All Item Locations(Ignore Checkboxes)'\
+                    and previousPreviousSearch != 'Show All Items(Ignore Checkboxes)':
+                listbox.delete(0, tkinter.END)
 
 def onSelectSearch(event=None):
     global previousSearch
@@ -402,6 +556,7 @@ def onSelectCharacter(event=None):
     global money
     global keys
     global eridium
+    global ammo
     global ammo1
     global ammo2
     global ammo3
@@ -412,13 +567,15 @@ def onSelectCharacter(event=None):
     global e1
     if event:
         previousCharacter = event.widget.get()
-    cursor.execute("SELECT * from vault_hunter join user on vault_hunter.user_id = user.user_id where username = \'" +
-                   e1 + "\' and name = \'" + previousCharacter + "\'")
-    character = cursor.fetchall()
+    character = getCharacter()
+    cursor.execute("SELECT * from equipped where user_id = \'" +
+                   str(character[0][1]) + "\' and hunter_id = \'" + str(character[0][0]) + "\'")
+    global equipList
+    equipList = cursor.fetchall()
     cursor.execute("SELECT * from currency where hunter_id = \'" + str(character[0][0])+ "\' and user_id = \'" +
                    str(character[0][1]) + "\'")
-    character = cursor.fetchall()
-    for(id, mon, erid, pis, snip, shot, rif, sub, roc, gren, key, uid) in character:
+    ammo = cursor.fetchall()
+    for(id, mon, erid, pis, snip, shot, rif, sub, roc, gren, key, uid) in ammo:
         money.delete(0, tkinter.END)
         money.insert(tkinter.END, mon)
         eridium.delete(0, tkinter.END)
@@ -432,6 +589,8 @@ def onSelectCharacter(event=None):
         ammo5.config(text=str(pis))
         ammo6.config(text=str(roc))
         ammo7.config(text=str(gren))
+        listInt = (id, mon, erid, pis, snip, shot, rif, sub, roc, gren, key, uid)
+    ammo = listInt
     query()
 
 def addtochar():
@@ -458,14 +617,16 @@ def addtochar():
     global var5
     global list5
     if previousSearch == 'Show All Items(Ignore Checkboxes)' or previousSearch == 'Show All Items'or \
-            previousSearch == 'Show Character Inventory':
+            previousSearch == 'Show Character Inventory' or previousSearch == "Show All Item Locations" or \
+            previousSearch == 'Show All Item Locations(Ignore Checkboxes)':
         x = listbox.index(tkinter.ACTIVE)
         if x != 0:
             x = x - 1
             row = None
             if (var2.get() == 1 or var3.get() == 1 or var4.get() == 1 or var5.get() == 1 or gunAR.get() == 1 or
                     gunSMG.get() == 1 or gunShotgun.get() == 1 or gunSniper.get() == 1 or gunPistol.get() == 1 or
-                    gunRocket.get() == 1):
+                    gunRocket.get() == 1) and (previousSearch == 'Show Character Inventory' or
+                    previousSearch == "Show All Item Locations" or previousSearch == 'Show All Items'):
                 if list1 is not None and (gunAR.get() == 1 or gunSMG.get() == 1 or gunShotgun.get() == 1 or
                                           gunSniper.get() == 1 or gunPistol.get() == 1 or gunRocket.get() == 1):
                     if (x - len(list1)) < 0:
@@ -589,7 +750,8 @@ def addtochar():
                             else:
                                 if list5 is not None and var5.get() == 1:
                                     row = list5[x]
-            if previousSearch == 'Show All Items(Ignore Checkboxes)':
+            if previousSearch == 'Show All Items(Ignore Checkboxes)' or \
+            previousSearch == 'Show All Item Locations(Ignore Checkboxes)':
                 if (x - len(list1)) < 0:
                     row = list1[x]
                     x = x - len(list1)
@@ -627,9 +789,11 @@ def addtochar():
                     elif row[1] == 'Relic': #TODO CHANGE IF TABLE IS FIXED
                         cursor.execute(inventory, (character[0][1], character[0][0], None, None, None, row[0], None))
                     else:
-                        print(row)
                         cursor.execute(inventory, (character[0][1], character[0][0], None, None, row[0], None, None))
-                    errorbox('Added Item', (row[1] +" added to "+ previousCharacter))
+                    if row[1] != 'Relic':
+                        errorbox('Added Item', (row[1] + " added to " + previousCharacter))
+                    else:
+                        errorbox('Added Item', (row[2] + " added to " + previousCharacter))
                     connection.commit()
                     query()
             else:
@@ -775,10 +939,7 @@ def deletefromchar():
                             else:
                                 if list5 is not None and var5.get() == 1:
                                     row = list5[x]
-                cursor.execute(
-                    "SELECT * from vault_hunter join user on vault_hunter.user_id = user.user_id where "
-                    "username = \'" + e1 + "\' and name = \'" + previousCharacter + "\'")
-                character = cursor.fetchall()
+                character = getCharacter()
                 if row[2] == 'Sniper Rifle' or row[2] == 'Submachine Gun' or row[2] == 'Assault Rifle' or \
                         row[2] == 'Pistol' or row[2] == 'Shotgun' or row[2] == 'Rocket Launcher':
                     cursor.execute("delete from inventory where gun_id = \'"+ str(row[0]) +"\' and user_id = \'" +
@@ -796,7 +957,10 @@ def deletefromchar():
                 else:
                     cursor.execute("delete from inventory where class_mod = \'" + str(row[0]) + "\' and user_id = \'" +
                                    str(character[0][1]) + "\' and hunter_id = \'" + str(character[0][0]) + "\' LIMIT 1")
-                errorbox('Deleted Item', (row[1] + " deleted from " + previousCharacter))
+                if row[1] != 'Relic':
+                    errorbox('Deleted Item', (row[1] + " deleted from " + previousCharacter))
+                else:
+                    errorbox('Deleted Item', (row[2] + " deleted from " + previousCharacter))
                 connection.commit()
                 query()
             else:
@@ -809,7 +973,6 @@ def deletefromchar():
 def cChar():
     global cursor
     global connection
-    global charInsert
     global previousCharacter
     global characters
     global main
@@ -819,9 +982,23 @@ def cChar():
     global v
     if u.get() != '':
         if v.get() != '. . .':
+            charInsert = ("INSERT INTO vault_hunter "
+                          "(user_id, class, level, name)"
+                          "VALUES (%s,%s,%s,%s)"
+                          )
             if a.get() == '':
                 a = 1
                 cursor.execute(charInsert, (user[0][0], v.get(), a, u.get()))
+                connection.commit()
+                cursor.execute(
+                    "SELECT * from vault_hunter join user on vault_hunter.user_id = user.user_id where username = \'" +
+                    e1 + "\' and name = \'" + u.get() + "\'")
+                character = cursor.fetchall()
+                cursor.execute("INSERT INTO currency values (" + str(character[0][0]) + ",0,0,0,0,0,0,0,0,0,0," +
+                               str(character[0][1]) + ")")
+                connection.commit()
+                cursor.execute("INSERT INTO equipped values ("+ str(character[0][1]) +","+str(character[0][0]) + ",NULL"
+                                ",NULL,NULL,NULL,NULL,NULL,NULL,NULL)")
                 connection.commit()
                 cursor.execute("SELECT * from vault_hunter where user_id = \'" + str(user[0][0]) + "\'")
                 characters = cursor.fetchall()
@@ -836,21 +1013,34 @@ def cChar():
                 errorbox('Created Character', (u.get() + " created!"))
             elif a.get() != '':
                 try:
-                    if 0 < int(a.get()) <= 100:
-                        a = int(a.get())
-                        cursor.execute(charInsert, (user[0][0], v.get(), a, u.get()))
-                        connection.commit()
-                        cursor.execute("SELECT * from vault_hunter where user_id = \'" + str(user[0][0]) + "\'")
-                        characters = cursor.fetchall()
-                        names = []
-                        for (hid, cid, cass, level, name) in characters:
-                            names.append(name)
-                        combochar = ttk.Combobox(main, width=30, values=names)
-                        combochar.grid(row=4, column=0, columnspan=3, padx=30)
-                        combochar.set(". . .")
-                        previousCharacter = ". . ."
-                        combochar.bind('<<ComboboxSelected>>', onSelectCharacter)
-                        errorbox('Created Character', (u.get() + " created!"))
+                    a = int(a.get())
+                    if a > 100:
+                        a = 100
+                    if a < 1:
+                        a = 1
+                    cursor.execute(charInsert, (user[0][0], v.get(), a, u.get()))
+                    connection.commit()
+                    cursor.execute(
+                        "SELECT * from vault_hunter join user on vault_hunter.user_id = user.user_id where username = \'" +
+                        e1 + "\' and name = \'" +  u.get() + "\'")
+                    character = cursor.fetchall()
+                    cursor.execute("INSERT INTO currency values ("+character[0][0]+",0,0,0,0,0,0,0,0,0,0,"+
+                                   character[0][1]+")")
+                    connection.commit()
+                    cursor.execute("INSERT INTO equipped values (" + str(character[0][1]) + "," +
+                                   str(character[0][0]) + ",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)")
+                    connection.commit()
+                    cursor.execute("SELECT * from vault_hunter where user_id = \'" + str(user[0][0]) + "\'")
+                    characters = cursor.fetchall()
+                    names = []
+                    for (hid, cid, cass, level, name) in characters:
+                        names.append(name)
+                    combochar = ttk.Combobox(main, width=30, values=names)
+                    combochar.grid(row=4, column=0, columnspan=3, padx=30)
+                    combochar.set(". . .")
+                    previousCharacter = ". . ."
+                    combochar.bind('<<ComboboxSelected>>', onSelectCharacter)
+                    errorbox('Created Character', (u.get() + " created!"))
                 except:
                     errorbox('Cannot Create Character', "Invalid Level, try a value between 1 and 100")
             else:
@@ -860,6 +1050,7 @@ def cChar():
     else:
         errorbox('Cannot Create Character', "Invalid name")
     k1.destroy()
+    query()
 
 def createChar():
     global k1
@@ -944,10 +1135,13 @@ def dChar():
     global e1
     confirm.destroy()
     if previousCharacter != '. . .':
-        cursor.execute(
-            "SELECT hunter_id, vault_hunter.user_id from vault_hunter join user on vault_hunter.user_id = user.user_id where "
-            "username = \'" + e1 + "\' and name = \'" + previousCharacter + "\'")
-        character = cursor.fetchall()
+        character = getCharacter()
+        cursor.execute("Delete from inventory where user_id = " + str(character[0][1]) + " and hunter_id = " + str(
+            character[0][0]))
+        cursor.execute("Delete from equipped where user_id = " + str(character[0][1]) + " and hunter_id = " + str(
+            character[0][0]))
+        cursor.execute("Delete from currency where user_id = " + str(character[0][1]) + " and hunter_id = " + str(
+            character[0][0]))
         cursor.execute("Delete from vault_hunter where user_id = " + str(character[0][1]) + " and hunter_id = " + str(character[0][0]))
         connection.commit()
         errorbox('Character Deleted', (previousCharacter + " deleted!"))
@@ -978,21 +1172,8 @@ def deleteChar():
 
 def dAll():
     global confirm2
-    global cursor
-    global connection
-    global previousCharacter
-    global e1
-    global main
     confirm2.destroy()
-    cursor.execute(
-        "SELECT hunter_id, vault_hunter.user_id from vault_hunter join user on vault_hunter.user_id = user.user_id where "
-        "username = \'" + e1 + "\'")
-    character = cursor.fetchall()
-    cursor.execute("Delete from vault_hunter where user_id = " + str(character[0][1]))
-    connection.commit()
-    main.destroy()
-    start()
-    errorbox('Account Deleted', "Please log in again to create a new account!")
+    errorbox('Cannot Delete Account', "Please contact your system administrator!")
 
 def deleteAll():
     global previousCharacter
@@ -1006,8 +1187,502 @@ def deleteAll():
     else:
         errorbox('Error', 'No character selected to delete')
 
-def initalize():
-    global r
+def quipt():
+    global cursor
+    global equipList
+    global listbox
+    if previousCharacter != '. . .':
+        if previousSearch == 'Show Character Inventory':
+            x = listbox.index(tkinter.ACTIVE)
+            if x != 0:
+                x = x - 1
+                row = None
+                if (var2.get() == 1 or var3.get() == 1 or var4.get() == 1 or var5.get() == 1 or gunAR.get() == 1 or
+                    gunSMG.get() == 1 or gunShotgun.get() == 1 or gunSniper.get() == 1 or gunPistol.get() == 1 or
+                    gunRocket.get() == 1):
+                    if list1 is not None and (gunAR.get() == 1 or gunSMG.get() == 1 or gunShotgun.get() == 1 or
+                                              gunSniper.get() == 1 or gunPistol.get() == 1 or gunRocket.get() == 1):
+                        if (x - len(list1)) < 0:
+                            row = list1[x]
+                        else:
+                            x = x - len(list1)
+                            if list2 is not None and var2.get() == 1:
+                                if (x - len(list2)) < 0:
+                                    row = list2[x]
+                                else:
+                                    x = x - len(list2)
+                                    if list3 is not None and var3.get() == 1:
+                                        if (x - len(list3)) < 0:
+                                            row = list3[x]
+                                        else:
+                                            x = x - len(list3)
+                                            if list4 is not None and var4.get() == 1:
+                                                if (x - len(list4)) < 0:
+                                                    row = list4[x]
+                                                else:
+                                                    x = x - len(list4)
+                                                    if list5 is not None and var5.get() == 1:
+                                                        row = list5[x]
+                                            else:
+                                                if list5 is not None and var5.get() == 1:
+                                                    row = list5[x]
+                                    else:
+                                        if list4 is not None and var4.get() == 1:
+                                            if (x - len(list4)) < 0:
+                                                row = list4[x]
+                                            else:
+                                                x = x - len(list4)
+                                                if list5 is not None and var5.get() == 1:
+                                                    row = list5[x]
+                                        else:
+                                            if list5 is not None and var5.get() == 1:
+                                                row = list5[x]
+                            else:
+                                if list3 is not None and var3.get() == 1:
+                                    if (x - len(list3)) < 0:
+                                        row = list3[x]
+                                    else:
+                                        x = x - len(list3)
+                                        if list4 is not None and var4.get() == 1:
+                                            if (x - len(list4)) < 0:
+                                                row = list4[x]
+                                            else:
+                                                x = x - len(list4)
+                                                if list5 is not None and var5.get() == 1:
+                                                    row = list5[x]
+                                        else:
+                                            if list5 is not None and var5.get() == 1:
+                                                row = list5[x]
+                                else:
+                                    if list4 is not None and var4.get() == 1:
+                                        if (x - len(list4)) < 0:
+                                            row = list4[x]
+                                        else:
+                                            x = x - len(list4)
+                                            if list5 is not None and var5.get() == 1:
+                                                row = list5[x]
+                                    else:
+                                        if list5 is not None and var5.get() == 1:
+                                            row = list5[x]
+                    else:
+                        if list2 is not None and var2.get() == 1:
+                            if (x - len(list2)) < 0:
+                                row = list2[x]
+                            else:
+                                x = x - len(list2)
+                                if list3 is not None and var3.get() == 1:
+                                    if (x - len(list3)) < 0:
+                                        row = list3[x]
+                                    else:
+                                        x = x - len(list3)
+                                        if list4 is not None and var4.get() == 1:
+                                            if (x - len(list4)) < 0:
+                                                row = list4[x]
+                                            else:
+                                                x = x - len(list4)
+                                                if list5 is not None and var5.get() == 1:
+                                                    row = list5[x]
+                                        else:
+                                            if list5 is not None and var5.get() == 1:
+                                                row = list5[x]
+                                else:
+                                    if list4 is not None and var4.get() == 1:
+                                        if (x - len(list4)) < 0:
+                                            row = list4[x]
+                                        else:
+                                            x = x - len(list4)
+                                            if list5 is not None and var5.get() == 1:
+                                                row = list5[x]
+                                    else:
+                                        if list5 is not None and var5.get() == 1:
+                                            row = list5[x]
+                        else:
+                            if list3 is not None and var3.get() == 1:
+                                if (x - len(list3)) < 0:
+                                    row = list3[x]
+                                else:
+                                    x = x - len(list3)
+                                    if list4 is not None and var4.get() == 1:
+                                        if (x - len(list4)) < 0:
+                                            row = list4[x]
+                                        else:
+                                            x = x - len(list4)
+                                            if list5 is not None and var5.get() == 1:
+                                                row = list5[x]
+                                    else:
+                                        if list5 is not None and var5.get() == 1:
+                                            row = list5[x]
+                            else:
+                                if list4 is not None and var4.get() == 1:
+                                    if (x - len(list4)) < 0:
+                                        row = list4[x]
+                                    else:
+                                        x = x - len(list4)
+                                        if list5 is not None and var5.get() == 1:
+                                            row = list5[x]
+                                else:
+                                    if list5 is not None and var5.get() == 1:
+                                        row = list5[x]
+                character = getCharacter()
+                print(equipList)
+                if row[2] == 'Sniper Rifle' or row[2] == 'Submachine Gun' or row[2] == 'Assault Rifle' or \
+                        row[2] == 'Pistol' or row[2] == 'Shotgun' or row[2] == 'Rocket Launcher':
+                        if equipList[0][2] is None:
+                            cursor.execute("delete from inventory where gun_id = \'"+ str(row[0]) +"\' and user_id = \'"
+                                + str(character[0][1]) +"\' and hunter_id = \'"+ str(character[0][0]) +"\' LIMIT 1")
+                            cursor.execute(
+                                "UPDATE equipped set gun_1 = "+ str(row[0])+" where user_id = " + str(character[0][1])
+                                + " and hunter_id = " + str(character[0][0]))
+                            connection.commit()
+                            errorbox('Equipping', row[1] + " Equipped")
+                        elif equipList[0][3] is None:
+                            cursor.execute(
+                                "delete from inventory where gun_id = \'" + str(row[0]) + "\' and user_id = \'"
+                                + str(character[0][1]) + "\' and hunter_id = \'" + str(character[0][0]) + "\' LIMIT 1")
+                            cursor.execute(
+                                "UPDATE equipped set gun_2 = " + str(row[0]) + " where user_id = " + str(
+                                    character[0][1])
+                                + " and hunter_id = " + str(character[0][0]))
+                            connection.commit()
+                            errorbox('Equipping', row[1] + " Equipped")
+                        elif equipList[0][4] is None:
+                            cursor.execute(
+                                "delete from inventory where gun_id = \'" + str(row[0]) + "\' and user_id = \'"
+                                + str(character[0][1]) + "\' and hunter_id = \'" + str(character[0][0]) + "\' LIMIT 1")
+                            cursor.execute(
+                                "UPDATE equipped set gun_3 = " + str(row[0]) + " where user_id = " + str(
+                                    character[0][1])
+                                + " and hunter_id = " + str(character[0][0]))
+                            connection.commit()
+                            errorbox('Equipping', row[1] + " Equipped")
+                        elif equipList[0][5] is None:
+                            cursor.execute(
+                                "delete from inventory where gun_id = \'" + str(row[0]) + "\' and user_id = \'"
+                                + str(character[0][1]) + "\' and hunter_id = \'" + str(character[0][0]) + "\' LIMIT 1")
+                            cursor.execute(
+                                "UPDATE equipped set gun_4 = " + str(row[0]) + " where user_id = " + str(
+                                    character[0][1])
+                                + " and hunter_id = " + str(character[0][0]))
+                            connection.commit()
+                            errorbox('Equipping', row[1] + " Equipped")
+                        else:
+                            errorbox('Equipping', 'No open gun slot.')
+                elif row[2] == 'Shield':
+                    if equipList[0][9] is None:
+                        cursor.execute("delete from inventory where shield = \'" +str(row[0]) + "\' and user_id = \'" +
+                                       str(character[0][1]) + "\' and hunter_id = \'" + str(character[0][0]) + "\' "
+                                        "LIMIT 1")
+                        cursor.execute(
+                            "UPDATE equipped set shield = " + str(row[0]) + " where user_id = " + str(
+                                character[0][1])
+                            + " and hunter_id = " + str(character[0][0]))
+                        connection.commit()
+                        errorbox('Equipping', row[1] + " Equipped")
+                    else:
+                        errorbox('Equipping', "Unequip Shield First")
+                elif row[2] == 'Grenade':
+                    if equipList[0][6] is None:
+                        cursor.execute("delete from inventory where grenade_mod = \'" + str(row[0]) + "\'"
+                                        " and user_id = \'"
+                                        + str(character[0][1]) + "\' and hunter_id = \'" + str(character[0][0]) + "\' "
+                                        "LIMIT 1")
+                        cursor.execute(
+                            "UPDATE equipped set grenade_mod = " + str(row[0]) + " where user_id = " + str(
+                                character[0][1])
+                            + " and hunter_id = " + str(character[0][0]))
+                        connection.commit()
+                        errorbox('Equipping', row[1] + " Equipped")
+                    else:
+                        errorbox('Equipping', "Unequip Grenade Mod First")
+
+                elif row[1] == 'Relic':  # TODO CHANGE IF TABLE IS FIXED
+                    if equipList[0][8] is None:
+                        cursor.execute("delete from inventory where relic = \'" + str(row[0]) + "\'"
+                                      " and user_id = \'"
+                                       + str(character[0][1]) + "\' and hunter_id = \'" + str(character[0][0]) + "\' "
+                                      "LIMIT 1")
+                        cursor.execute(
+                            "UPDATE equipped set relic = " + str(row[0]) + " where user_id = " + str(
+                                character[0][1])
+                            + " and hunter_id = " + str(character[0][0]))
+                        connection.commit()
+                        errorbox('Equipping', row[1] + " Equipped")
+                    else:
+                        errorbox('Equipping', "Unequip Relic First")
+                else:
+                    if equipList[0][7] is None:
+                        cursor.execute("delete from inventory where class_mod = \'" + str(row[0]) + "\'"
+                                                                                                " and user_id = \'"
+                                       + str(character[0][1]) + "\' and hunter_id = \'" + str(character[0][0]) + "\' "
+                                       "LIMIT 1")
+                        cursor.execute(
+                            "UPDATE equipped set class_mod = " + str(row[0]) + " where user_id = " + str(
+                                character[0][1])
+                            + " and hunter_id = " + str(character[0][0]))
+                        connection.commit()
+                        errorbox('Equipping', row[1] + " Equipped")
+                    else:
+                        errorbox('Equipping', "Unequip Class Mod First")
+                onSelectCharacter()
+            else:
+                errorbox('Equipping', 'Select a valid item to equip')
+        else:
+            errorbox('Equipping', 'Show your character inventory and select from there')
+    else:
+        errorbox('Equipping', 'Please select a character to equip to')
+
+def unquipt():
+    global previousCharacter
+    global previousSearch
+    global cursor
+    global connection
+    global equipList
+    global listbox
+    if previousSearch == 'Show Character Equipment' and previousCharacter != '. . .':
+        x = listbox.index(tkinter.ACTIVE)
+        if equipList[0][x+1] is not None:
+            character = getCharacter()
+            if 1 <= x <= 4:
+                cursor.execute("UPDATE equipped set gun_"+str(x)+" = NULL where user_id = " + str(character[0][1])
+                               + " and hunter_id = " + str(character[0][0]))
+                cursor.execute(inventory, (character[0][1], character[0][0], equipList[0][x+1], None, None, None, None))
+                connection.commit()
+            elif x == 5:
+                cursor.execute(
+                    "UPDATE equipped set grenade_mod = NULL where user_id = " + str(character[0][1]) +
+                    " and hunter_id = " + str(character[0][0]))
+                cursor.execute(inventory, (character[0][1], character[0][0], None, None, None, None, equipList[0][x+1]))
+                connection.commit()
+            elif x == 6:
+                cursor.execute(
+                    "UPDATE equipped set class_mod = NULL where user_id = " + str(character[0][1]) +
+                    " and hunter_id = " + str(character[0][0]))
+                cursor.execute(inventory, (character[0][1], character[0][0], None, None, equipList[0][x+1], None, None))
+                connection.commit()
+            elif x == 7:
+                cursor.execute(
+                    "UPDATE equipped set relic = NULL where user_id = " + str(character[0][1]) +
+                    " and hunter_id = " + str(character[0][0]))
+                cursor.execute(inventory, (character[0][1], character[0][0], None, None, None, equipList[0][x+1], None))
+                connection.commit()
+            elif x == 8:
+                cursor.execute(
+                    "UPDATE equipped set shield = NULL where user_id = " + str(character[0][1]) +
+                    " and hunter_id = " + str(character[0][0]))
+                cursor.execute(inventory, (character[0][1], character[0][0], None, equipList[0][x+1], None, None, None))
+                connection.commit()
+            query()
+        else:
+            if x == 0:
+                errorbox('Unequip', 'No equipment selected or selected yourself, if you have selected yourself there is '
+                                    'other ways to unequip yourself. Try deleting instead.')
+            else:
+                errorbox('Unequip', 'No equipment to unequip')
+    else:
+        errorbox('Unequip', 'Please show equipment, select a character and select an item')
+def add1(event):
+    if previousCharacter != '. . .':
+        global ammo
+        global ammo1
+        if ammo[6] != 99999999999:
+            global cursor
+            character = getCharacter()
+            ammo = (ammo[0], ammo[1], ammo[2], ammo[3], ammo[4], ammo[5], ammo[6] + 1, ammo[7], ammo[8], ammo[9],
+                    ammo[10], ammo[11])
+            cursor.execute("UPDATE currency SET rifle_ammo = " + str(ammo[6]) + " where user_id = "
+                           + str(character[0][1]) + " and hunter_id = " + str(character[0][0]))
+            ammo1.config(text=str(ammo[6]))
+            global connection
+            connection.commit()
+
+def subtract1(event):
+    if previousCharacter != '. . .':
+        global ammo
+        global ammo1
+        if ammo[6] != 0:
+            global cursor
+            character = getCharacter()
+            ammo = (ammo[0], ammo[1], ammo[2], ammo[3], ammo[4], ammo[5], ammo[6] - 1, ammo[7], ammo[8], ammo[9],
+                    ammo[10], ammo[11])
+            cursor.execute("UPDATE currency SET rifle_ammo = " + str(ammo[6]) + " where user_id = "
+                           + str(character[0][1]) + " and hunter_id = " + str(character[0][0]))
+            ammo1.config(text=str(ammo[6]))
+            global connection
+            connection.commit()
+
+
+def add2(event):
+    if previousCharacter != '. . .':
+        global ammo
+        global ammo2
+        if ammo[7] != 99999999999:
+            global cursor
+            character = getCharacter()
+            ammo = (ammo[0], ammo[1], ammo[2], ammo[3], ammo[4], ammo[5], ammo[6], ammo[7] + 1, ammo[8], ammo[9],
+                    ammo[10], ammo[11])
+            cursor.execute("UPDATE currency SET submachine_ammo = " + str(ammo[7]) + " where user_id = "
+                           + str(character[0][1]) + " and hunter_id = " + str(character[0][0]))
+            ammo2.config(text=str(ammo[7]))
+            global connection
+            connection.commit()
+def subtract2(event):
+    if previousCharacter != '. . .':
+        global ammo
+        global ammo2
+        if ammo[7] != 0:
+            global cursor
+            character = getCharacter()
+            ammo = (ammo[0], ammo[1], ammo[2], ammo[3], ammo[4], ammo[5], ammo[6], ammo[7] - 1, ammo[8], ammo[9],
+                    ammo[10], ammo[11])
+            cursor.execute("UPDATE currency SET submachine_ammo = " + str(ammo[7]) + " where user_id = "
+                           + str(character[0][1]) + " and hunter_id = " + str(character[0][0]))
+            ammo2.config(text=str(ammo[7]))
+            global connection
+            connection.commit()
+
+def add3(event):
+    if previousCharacter != '. . .':
+        global ammo
+        global ammo3
+        if ammo[5] != 99999999999:
+            global cursor
+            character = getCharacter()
+            ammo = (ammo[0], ammo[1], ammo[2], ammo[3], ammo[4], ammo[5] + 1, ammo[6], ammo[7], ammo[8], ammo[9],
+                    ammo[10], ammo[11])
+            cursor.execute("UPDATE currency SET shotgun_ammo = " + str(ammo[5]) + " where user_id = "
+                           + str(character[0][1]) + " and hunter_id = " + str(character[0][0]))
+            ammo3.config(text=str(ammo[5]))
+            global connection
+            connection.commit()
+def subtract3(event):
+    if previousCharacter != '. . .':
+        global ammo
+        global ammo3
+        if ammo[5] != 0:
+            global cursor
+            character = getCharacter()
+            ammo = (ammo[0], ammo[1], ammo[2], ammo[3], ammo[4], ammo[5] - 1, ammo[6], ammo[7], ammo[8], ammo[9],
+                    ammo[10], ammo[11])
+            cursor.execute("UPDATE currency SET shotgun_ammo = " + str(ammo[5]) + " where user_id = "
+                           + str(character[0][1]) + " and hunter_id = " + str(character[0][0]))
+            ammo3.config(text=str(ammo[5]))
+            global connection
+            connection.commit()
+
+def add4(event):
+    if previousCharacter != '. . .':
+        global ammo
+        global ammo4
+        if ammo[4] != 99999999999:
+            global cursor
+            character = getCharacter()
+            ammo = (ammo[0], ammo[1], ammo[2], ammo[3], ammo[4] + 1, ammo[5], ammo[6], ammo[7], ammo[8], ammo[9],
+                    ammo[10], ammo[11])
+            cursor.execute("UPDATE currency SET sniper_ammo = " + str(ammo[4]) + " where user_id = "
+                           + str(character[0][1]) + " and hunter_id = " + str(character[0][0]))
+            ammo4.config(text=str(ammo[4]))
+            global connection
+            connection.commit()
+def subtract4(event):
+    if previousCharacter != '. . .':
+        global ammo
+        global ammo4
+        if ammo[4] != 0:
+            global cursor
+            character = getCharacter()
+            ammo = (ammo[0], ammo[1], ammo[2], ammo[3], ammo[4] - 1, ammo[5], ammo[6], ammo[7], ammo[8], ammo[9],
+                    ammo[10], ammo[11])
+            cursor.execute("UPDATE currency SET sniper_ammo = " + str(ammo[4]) + " where user_id = "
+                           + str(character[0][1]) + " and hunter_id = " + str(character[0][0]))
+            ammo4.config(text=str(ammo[4]))
+            global connection
+            connection.commit()
+def add5(event):
+    if previousCharacter != '. . .':
+        global ammo
+        global ammo5
+        if ammo[3] != 99999999999:
+            global cursor
+            character = getCharacter()
+            ammo = (ammo[0], ammo[1], ammo[2], ammo[3] + 1, ammo[4], ammo[5], ammo[6], ammo[7], ammo[8], ammo[9],
+                    ammo[10], ammo[11])
+            cursor.execute("UPDATE currency SET pistol_ammo = " + str(ammo[3]) + " where user_id = "
+                           + str(character[0][1]) + " and hunter_id = " + str(character[0][0]))
+            ammo5.config(text=str(ammo[3]))
+            global connection
+            connection.commit()
+def subtract5(event):
+    if previousCharacter != '. . .':
+        global ammo
+        global ammo5
+        if ammo[3] != 0:
+            global cursor
+            character = getCharacter()
+            ammo = (ammo[0], ammo[1], ammo[2], ammo[3] - 1, ammo[4], ammo[5], ammo[6], ammo[7], ammo[8], ammo[9],
+                    ammo[10], ammo[11])
+            cursor.execute("UPDATE currency SET pistol_ammo = " + str(ammo[3]) + " where user_id = "
+                           + str(character[0][1]) + " and hunter_id = " + str(character[0][0]))
+            ammo5.config(text=str(ammo[3]))
+            global connection
+            connection.commit()
+def add6(event):
+    if previousCharacter != '. . .':
+        global ammo
+        global ammo6
+        if ammo[8] != 99999999999:
+            global cursor
+            character = getCharacter()
+            ammo = (ammo[0], ammo[1], ammo[2], ammo[3], ammo[4], ammo[5], ammo[6], ammo[7], ammo[8] + 1, ammo[9],
+                    ammo[10], ammo[11])
+            cursor.execute("UPDATE currency SET rocket_ammo = " + str(ammo[8]) + " where user_id = "
+                           + str(character[0][1]) + " and hunter_id = " + str(character[0][0]))
+            ammo6.config(text=str(ammo[8]))
+            global connection
+            connection.commit()
+def subtract6(event):
+    if previousCharacter != '. . .':
+        global ammo
+        global ammo6
+        if ammo[8] != 0:
+            global cursor
+            character = getCharacter()
+            ammo = (ammo[0], ammo[1], ammo[2], ammo[3], ammo[4], ammo[5], ammo[6], ammo[7], ammo[8] - 1, ammo[9],
+                    ammo[10], ammo[11])
+            cursor.execute("UPDATE currency SET rocket_ammo = " + str(ammo[8]) + " where user_id = "
+                           + str(character[0][1]) + " and hunter_id = " + str(character[0][0]))
+            ammo6.config(text=str(ammo[8]))
+            global connection
+            connection.commit()
+def add7(event):
+    if previousCharacter != '. . .':
+        global ammo
+        global ammo7
+        if ammo[9] != 99999999999:
+            global cursor
+            character = getCharacter()
+            ammo = (ammo[0], ammo[1], ammo[2], ammo[3], ammo[4], ammo[5], ammo[6], ammo[7], ammo[8], ammo[9] + 1,
+                    ammo[10], ammo[11])
+            cursor.execute("UPDATE currency SET grenades = " + str(ammo[9]) + " where user_id = "
+                           + str(character[0][1]) + " and hunter_id = " + str(character[0][0]))
+            ammo7.config(text=str(ammo[9]))
+            global connection
+            connection.commit()
+def subtract7(event):
+    if previousCharacter != '. . .':
+        global ammo
+        global ammo7
+        if ammo[9] != 0:
+            global cursor
+            character = getCharacter()
+            ammo = (ammo[0], ammo[1], ammo[2], ammo[3], ammo[4], ammo[5], ammo[6], ammo[7], ammo[8], ammo[9] - 1,
+                    ammo[10], ammo[11])
+            cursor.execute("UPDATE currency SET grenades = " + str(ammo[9]) + " where user_id = "
+                           + str(character[0][1]) + " and hunter_id = " + str(character[0][0]))
+            ammo7.config(text=str(ammo[9]))
+            global connection
+            connection.commit()
+
+def initalize(connect, r, evalue):
     global e1
     global user
     global characters
@@ -1018,7 +1693,6 @@ def initalize():
     global previousSearch
     global previousCharacter
     global previousPreviousSearch
-    global previousPreviousCharacter
     global var2
     global var3
     global var4
@@ -1049,13 +1723,13 @@ def initalize():
     list3 = None
     list4 = None
     list5 = None
-    e1 = e1.get()
+    connection = connect
+    e1 = evalue.get()
     r.destroy()
     cursor = connection.cursor()
     previousSearch = '. . .'
     previousCharacter = '. . .'
     previousPreviousSearch = '. . .'
-    previousPreviousCharacter = '. . .'
     cursor.execute("SELECT * from user where username = \'" + e1 + "\'")
     user = cursor.fetchall()
     cursor.execute("SELECT * from vault_hunter where user_id = \'" + str(user[0][0]) + "\'")
@@ -1065,29 +1739,44 @@ def initalize():
     main.minsize(720, 500)
     #search commands '. . .' negates searches
     tkinter.Label(main, text='Search', relief=tkinter.RIDGE).grid(row=0, column=0)
-    combo = ttk.Combobox(main, width=100, values=("Show Character Inventory", "Show Current Character Stats and Badass",
-     "Show All Items(Ignore Checkboxes)", "Show All Items", "Show All Item Locations", "Show All Vehicles"))
+    combo = ttk.Combobox(main, width=100, values=("Show Character Inventory", "Show Character Equipment",
+    "Show Current Character Stats and Badass","Show All Items(Ignore Checkboxes)", "Show All Items",
+    "Show All Item Locations(Ignore Checkboxes)", "Show All Item Locations", "Show All Vehicles"))
     combo.set(". . .")
     combo.grid(row=1, columnspan=10, padx=30)
     combo.bind('<<ComboboxSelected>>', onSelectSearch)
     tkinter.Label(main, width=1).grid(row=2)
     tkinter.Label(main, text='Character', relief=tkinter.RIDGE).grid(row=3, column=0, columnspan=3)
-    tkinter.Label(main, text='Guns', relief=tkinter.RIDGE).grid(row=3, column=2, columnspan=3)
+    tkinter.Label(main, text='Guns', relief=tkinter.RIDGE).grid(row=3, column=3, columnspan=3, sticky='W')
     tkinter.Label(main, text='Ammo', relief=tkinter.RIDGE).grid(row=3, column=5, columnspan=3)
     ammo1 = tkinter.Label(main, width=5, relief=tkinter.RIDGE)
     ammo1.grid(row=4, column=5, columnspan=3)
+    ammo1.bind("<Button-1>", add1)
+    ammo1.bind("<Button-3>", subtract1)
     ammo2 = tkinter.Label(main, width=5, relief=tkinter.RIDGE)
     ammo2.grid(row=5, column=5, columnspan=3)
+    ammo2.bind("<Button-1>", add2)
+    ammo2.bind("<Button-3>", subtract2)
     ammo7 = tkinter.Label(main, width=5, relief=tkinter.RIDGE)
     ammo7.grid(row=5, column=7, sticky="E")
+    ammo7.bind("<Button-1>", add7)
+    ammo7.bind("<Button-3>", subtract7)
     ammo3 = tkinter.Label(main, width=5, relief=tkinter.RIDGE)
     ammo3.grid(row=6, column=5, columnspan=3)
+    ammo3.bind("<Button-1>", add3)
+    ammo3.bind("<Button-3>", subtract3)
     ammo4 = tkinter.Label(main, width=5, relief=tkinter.RIDGE)
     ammo4.grid(row=7, column=5, columnspan=3)
+    ammo4.bind("<Button-1>", add4)
+    ammo4.bind("<Button-3>", subtract4)
     ammo5 = tkinter.Label(main, width=5, relief=tkinter.RIDGE)
     ammo5.grid(row=8, column=5, columnspan=3)
+    ammo5.bind("<Button-1>", add5)
+    ammo5.bind("<Button-3>", subtract5)
     ammo6 = tkinter.Label(main, width=5, relief=tkinter.RIDGE)
     ammo6.grid(row=9, column=5, columnspan=3)
+    ammo6.bind("<Button-1>", add6)
+    ammo6.bind("<Button-3>", subtract6)
     tkinter.Label(main, text='Other Items', relief=tkinter.RIDGE).grid(row=3, column=8, columnspan=3)
     names = []
     for (hid, cid, cass, level, name) in characters:
@@ -1158,17 +1847,17 @@ def initalize():
     listbox.grid(row=13, columnspan=10, rowspan=10, padx=30)
     scrollbar.config(command=listbox.yview)
     #button for list, add and destroy
-    addb = tkinter.Button(main, text='Add/Duplicate to Character', command=addtochar)
+    addb = tkinter.Button(main, text='Add/Duplicate item to Inventory', command=addtochar)
     addb.grid(row=23, column=1)
-    deleteb = tkinter.Button(main, text='Delete item from character', command=deletefromchar)
+    deleteb = tkinter.Button(main, text='Delete item from Inventory', command=deletefromchar)
     deleteb.grid(row=23, column=7)
+    equip = tkinter.Button(main, text='Equip item to Character', command=quipt)
+    equip.grid(row=24, column=1)
+    unequip = tkinter.Button(main, text='Unequip item on Character', command=unquipt)
+    unequip.grid(row=24, column=7)
     main.mainloop()
 
-def login():
-    global e1
-    global e2
-    global connection
-    global r
+def login(r, e1, e2):
     try:
         connection = mysql.connector.connect(
         host='ethan.cikeys.com',
@@ -1186,22 +1875,19 @@ def login():
         else:
             errorbox('Error', err)
     else:
-        initalize()
+        initalize(connection, r, e1)
 
 def start():
-    global r
     r = tkinter.Tk()
     r.title('Borderlands Database Login')
     r.minsize(260, 100)
     tkinter.Label(r, text='user').grid(row=0)
     tkinter.Label(r, text='password').grid(row=1)
-    global e1
-    global e2
     e1 = tkinter.Entry(r)
     e2 = tkinter.Entry(r)
     e1.grid(row=0, column=1)
     e2.grid(row=1, column=1)
-    tkinter.Button(r, text='Login', command=login).grid(row=3, column=1)
+    tkinter.Button(r, text='Login', command= lambda: login(r,e1,e2)).grid(row=3, column=1)
     r.mainloop()
 
 start()
