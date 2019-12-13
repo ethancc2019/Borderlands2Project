@@ -1,11 +1,11 @@
 # Borderlands2Project
 COMP 420 DB Project
 
-Under normal operations, this database connects to a CI-Keys MySQL server. A user account and IP address permissions will be provided 
-from an administator. 
+Under normal operations, this database connects to a CI-Keys MySQL server with its own references, tables, views, procedures, functions and triggers. A user account and IP address permissions will be provided from an administator. 
 
-Using the GUI is simple. Upon running the script, you will be prompted for login credentials. Inputting the correct username and password
-will allow access to the database and functionality for the main UI. 
+Data is inserted by the .py scripts in Import Data Files Folder. 
+
+Using the GUI is simple. Upon running the script Borderlands2019GUI.py, you will be prompted for login credentials. Inputting the correct username and password will allow access to the database and functionality for the main UI. 
 
 From the main UI you can create new characters, click checkboxes, change selected characters and change queries just to name some of the 
 initial options. Some queries do no require any setup in the interface such as 'Show All Vehicles'. 
